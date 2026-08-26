@@ -1,0 +1,32 @@
+name: Live Backend Health Monitor Cron
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    # Run every 6 hours automatically on GitHub Actions
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  ping-health:
+    name: Ping Render Live Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🩺 Check Live Backend Health Endpoint
+        run: |
+          echo "Pinging https://bizora-backend-gtoe.onrender.com/api/health..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" https://bizora-backend-gtoe.onrender.com/api/health)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "HTTP Response Code: $HTTP_CODE"
+          echo "Response Body: $BODY"
+
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Live backend is healthy and responding!"
+          else
+            echo "❌ Live backend returned HTTP $HTTP_CODE"
+            exit 1
+          fi

@@ -1,0 +1,17 @@
+{
+  "name": "bizora-database",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "generate": "prisma generate --schema=prisma/schema.prisma",
+    "build": "prisma generate --schema=prisma/schema.prisma && tsc"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.3.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.3.0"
+  }
+}

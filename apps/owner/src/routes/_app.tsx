@@ -1,0 +1,1143 @@
+import { BizoraLogo, BizoraLogoIcon } from "@/components/bizora-logo";
+import { LanguageSelector } from "@/components/language-selector";
+import {
+  createFileRoute,
+  Outlet,
+  Link,
+  useNavigate,
+  useRouterState,
+  redirect,
+} from "@tanstack/react-router";
+import { useEffect, useState, useRef, useMemo } from "react";
+import {
+  LayoutDashboard,
+  Activity,
+  BarChart3,
+  Brain,
+  LineChart,
+  ShieldAlert,
+  ShoppingCart,
+  Receipt,
+  Users,
+  Package,
+  Warehouse,
+  Timer,
+  Truck,
+  Globe,
+  ClipboardList,
+  Wallet,
+  Calculator,
+  TrendingDown,
+  Zap,
+  FileBarChart,
+  Building2,
+  UserCog,
+  CreditCard,
+  FileText,
+  Upload,
+  Settings,
+  Search,
+  Bell,
+  Sparkles,
+  CalendarDays,
+  ChevronsLeft,
+  LogOut,
+  ChevronRight,
+  Circle,
+  Menu,
+  X,
+  AlertTriangle,
+  ShoppingBag as ShoppingBagIcon,
+  RotateCcw,
+  Loader2,
+  ArrowLeft,
+  Sun,
+  Moon,
+} from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { stopImpersonatingServer } from "@/lib/server-auth";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { MALL, ANOMALIES, LIVE_FEED } from "@/lib/mock-data";
+import { toast } from "sonner";
+import { useBusinessData } from "@/lib/business-context";
+import {
+  Product360Drawer,
+  Customer360Drawer,
+  Supplier360Drawer,
+  RecommendationInvestigateDrawer,
+} from "@/components/details-drawers";
+
+export const Route = createFileRoute("/_app")({
+  beforeLoad: async ({ location }: { location: any }) => {
+    const { getCurrentSessionServer } = await import("@/lib/server-auth");
+    const res = await getCurrentSessionServer();
+    if (!res.user) {
+      throw redirect({
+        to: "/login",
+        search: {
+          redirect: location.href,
+        },
+      });
+    }
+    // Authenticated user proceeds to app shell
+  },
+  component: AppShell,
+});
+
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard };
+type NavSection = { section: string; items: NavItem[] };
+
+const NAV: NavSection[] = [
+  {
+    section: "Overview",
+    items: [
+      { to: "/command-center", label: "Command Center", icon: LayoutDashboard },
+      { to: "/live-ops", label: "Live Operations", icon: Activity },
+      { to: "/time-machine", label: "Business Time Machine", icon: CalendarDays },
+    ],
+  },
+  {
+    section: "Portals",
+    items: [
+      { to: "/customer-portal", label: "Customer Portal", icon: ShoppingBagIcon },
+      { to: "/supplier-portal", label: "Supplier Portal", icon: Truck },
+    ],
+  },
+  {
+    section: "Intelligence",
+    items: [
+      { to: "/analytics", label: "Analytics", icon: BarChart3 },
+      { to: "/ai-decisions", label: "AI Decision Center", icon: Brain },
+      { to: "/market-intelligence", label: "Market Intelligence", icon: Globe },
+      { to: "/forecasting", label: "Forecasting", icon: LineChart },
+      { to: "/anomalies", label: "Anomaly & Risk", icon: ShieldAlert },
+    ],
+  },
+  {
+    section: "Commerce",
+    items: [
+      { to: "/billing", label: "Billing (POS)", icon: Calculator },
+      { to: "/sales", label: "Sales", icon: ShoppingCart },
+      { to: "/transactions", label: "Transactions", icon: Receipt },
+      { to: "/customers", label: "Customers", icon: Users },
+    ],
+  },
+  {
+    section: "Operations",
+    items: [
+      { to: "/products", label: "Products", icon: Package },
+      { to: "/inventory", label: "Inventory", icon: Warehouse },
+      { to: "/expiry", label: "Expiry Intelligence", icon: Timer },
+      { to: "/suppliers", label: "Suppliers", icon: Truck },
+      { to: "/purchase-orders", label: "Purchase Orders", icon: ClipboardList },
+      { to: "/logistics", label: "Logistics & Dispatch", icon: Truck },
+    ],
+  },
+  {
+    section: "Finance",
+    items: [
+      { to: "/accounts", label: "Accounts", icon: CreditCard },
+      { to: "/income", label: "Income", icon: Wallet },
+      { to: "/expenses", label: "Expenses", icon: TrendingDown },
+      { to: "/utilities", label: "Utilities", icon: Zap },
+      { to: "/tax", label: "Tax & Compliance", icon: FileBarChart },
+    ],
+  },
+  {
+    section: "Management",
+    items: [
+      { to: "/departments", label: "Departments", icon: Building2 },
+      { to: "/staff", label: "Staff & Managers", icon: UserCog },
+    ],
+  },
+  {
+    section: "System",
+    items: [
+      { to: "/reports", label: "Reports", icon: FileText },
+      { to: "/subscriptions", label: "Plans & Pricing", icon: CreditCard },
+      { to: "/data-import", label: "Data Import", icon: Upload },
+      { to: "/settings", label: "Settings", icon: Settings },
+    ],
+  },
+];
+
+function AppShell() {
+  const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
+  const [mounted, setMounted] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [readNotifs, setReadNotifs] = useState<Set<string>>(new Set());
+  const notifRef = useRef<HTMLDivElement>(null);
+  const pathname = useRouterState({ select: (s: any) => s.location.pathname });
+
+  const {
+    activeProductId,
+    activeCustomerId,
+    activeSupplierId,
+    activeRecId,
+    openProduct360,
+    openCustomer360,
+    openSupplier360,
+    openRecommendation,
+    products,
+    customers,
+    suppliers,
+    activeDate,
+    transactions,
+    purchaseOrders,
+    expenses,
+    investments,
+    logistics,
+    anomalies,
+  } = useBusinessData();
+
+  const isEndOfMonth = useMemo(() => {
+    if (!activeDate) return false;
+    const d = new Date(activeDate);
+    const nextDay = new Date(d);
+    nextDay.setDate(d.getDate() + 3);
+    return nextDay.getMonth() !== d.getMonth();
+  }, [activeDate]);
+
+  const endOfMonthNotifId = `eom-bills-${activeDate?.slice(0, 7) || "current"}`;
+  const hasEomNotif = isEndOfMonth && !readNotifs.has(endOfMonthNotifId);
+  const unreadAnomalies = (anomalies || []).filter((a) => !readNotifs.has(a.id));
+  const totalUnreadNotifs = unreadAnomalies.length + (hasEomNotif ? 1 : 0);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/login", replace: true });
+    }
+  }, [loading, user, navigate]);
+
+  // Initialize theme state from localStorage
+  useEffect(() => {
+    const theme = localStorage.getItem('bizora-theme') || 'light';
+    setIsDark(theme === 'dark');
+  }, []);
+
+  // Keyboard shortcut listener (Cmd/Ctrl + K to focus search, Esc to close)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        setSearchOpen(true);
+      }
+      if (e.key === "Escape") {
+        setSearchOpen(false);
+        setNotifOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Click outside to close notification dropdown
+  useEffect(() => {
+    if (!notifOpen) return;
+    const handleClick = (e: MouseEvent | TouchEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("touchstart", handleClick);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("touchstart", handleClick);
+    };
+  }, [notifOpen]);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return {
+        products: [],
+        customers: [],
+        suppliers: [],
+        transactions: [],
+        purchaseOrders: [],
+        expenses: [],
+        investments: [],
+        logistics: [],
+      };
+    }
+    const q = searchQuery.toLowerCase();
+    return {
+      products: products
+        .filter((p) => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q))
+        .slice(0, 3),
+      customers: customers
+        .filter((c) => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q))
+        .slice(0, 3),
+      suppliers: suppliers
+        .filter((s) => s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q))
+        .slice(0, 3),
+      transactions: transactions
+        .filter(
+          (t) =>
+            t.id.toLowerCase().includes(q) ||
+            (t.customerName && t.customerName.toLowerCase().includes(q)) ||
+            t.total.toString().includes(q),
+        )
+        .slice(0, 3),
+      purchaseOrders: purchaseOrders
+        .filter(
+          (po) =>
+            po.id.toLowerCase().includes(q) ||
+            po.productName.toLowerCase().includes(q) ||
+            po.supplierName.toLowerCase().includes(q),
+        )
+        .slice(0, 3),
+      expenses: expenses
+        .filter(
+          (e) =>
+            e.id.toLowerCase().includes(q) ||
+            e.desc.toLowerCase().includes(q) ||
+            e.vendor.toLowerCase().includes(q) ||
+            e.category.toLowerCase().includes(q),
+        )
+        .slice(0, 3),
+      investments: investments
+        .filter((i) => i.assetName.toLowerCase().includes(q) || i.symbol.toLowerCase().includes(q))
+        .slice(0, 3),
+      logistics: logistics
+        .filter(
+          (l) =>
+            l.orderNumber.toLowerCase().includes(q) ||
+            l.customerName.toLowerCase().includes(q) ||
+            l.driverName.toLowerCase().includes(q) ||
+            l.destination.toLowerCase().includes(q),
+        )
+        .slice(0, 3),
+    };
+  }, [
+    searchQuery,
+    products,
+    customers,
+    suppliers,
+    transactions,
+    purchaseOrders,
+    expenses,
+    investments,
+    logistics,
+  ]);
+
+  useEffect(() => {
+    // If auth is still loading, don't redirect yet
+    if (loading) return;
+
+    // If no valid server session, redirect to login
+    if (!user) {
+      navigate({ to: "/login" });
+      return;
+    }
+
+    // Role-based route guard
+    if (user) {
+      if (user.email === "khade8915@gmail.com" && pathname !== "/system-admin") {
+        navigate({ to: "/system-admin", replace: true });
+        return;
+      }
+
+      const restrictedPaths = ["/settings", "/tax", "/data-import", "/income", "/departments"];
+      if (user.role === "manager" && restrictedPaths.some((p) => pathname.startsWith(p))) {
+        toast.error("Access Denied: You do not have permissions to view this page.");
+        navigate({ to: "/command-center" });
+      }
+    }
+  }, [navigate, user, loading, pathname]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Don't render anything, useEffect will redirect
+  }
+
+  let filteredNAV = NAV.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => {
+      if (user?.role === "manager") {
+        const restricted = ["/settings", "/tax", "/data-import", "/income", "/departments"];
+        return !restricted.includes(item.to);
+      }
+      return true;
+    }),
+  })).filter((section) => section.items.length > 0);
+
+  if (user?.isSystemAdmin && user?.email === "khade8915@gmail.com") {
+    // Super Admin should ONLY see System Admin Portal tab
+    filteredNAV = [
+      {
+        section: "System",
+        items: [
+          { to: "/system-admin", label: "System Admin Portal", icon: ShieldAlert },
+        ],
+      },
+    ];
+  }
+
+  const currentLabel =
+    filteredNAV.flatMap((s) => s.items).find((i) => i.to === pathname)?.label ?? "Overview";
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
+      {user?.isImpersonating && (
+        <div className="flex items-center justify-between bg-warning text-warning-foreground px-4 py-2 text-sm font-semibold select-none z-50">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4.5 w-4.5 text-warning-foreground animate-pulse" />
+            <span>Impersonation Active: Viewing workspace as Owner ({user.name} - {user.email})</span>
+          </div>
+          <Button 
+            size="sm" 
+            variant="destructive" 
+            onClick={async () => {
+              await stopImpersonatingServer();
+              toast.success("Returned to System Admin session.");
+              window.location.reload();
+            }}
+          >
+            Stop Impersonation
+          </Button>
+        </div>
+      )}
+      <div className="flex flex-1 min-h-0 bg-background text-foreground">
+        {/* Mobile sidebar overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed top-0 left-0 z-50 flex h-screen shrink-0 flex-col bg-sidebar transition-all duration-300",
+          "border-r-2 border-r-primary/30",
+          // Desktop
+          "lg:sticky lg:translate-x-0",
+          collapsed ? "lg:w-[68px]" : "lg:w-[260px]",
+          // Mobile
+          mobileOpen
+            ? "w-[280px] translate-x-0 shadow-2xl shadow-primary/10"
+            : "-translate-x-full lg:translate-x-0",
+        )}
+      >
+
+
+        <div className="relative hairline-b flex items-center gap-3 px-4 py-5">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-transparent overflow-hidden">
+            <BizoraLogoIcon className="h-full w-full object-contain" />
+          </div>
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="truncate text-base font-bold tracking-tight">{"Bizora AI"}</p>
+              <p className="truncate text-[11px] text-muted-foreground">
+                {typeof window !== "undefined" && user?.workspaceId && localStorage.getItem(`bizora_company_name_${user.workspaceId}`)
+                  ? localStorage.getItem(`bizora_company_name_${user.workspaceId}`)
+                  : (user?.workspaceId === "grandsquare-mall" || user?.email === "owner@gmail.com"
+                      ? "GrandSquare Mall"
+                      : (user?.name ? `${user.name}'s Store` : "Business Store"))}
+              </p>
+            </div>
+          )}
+          {/* Close mobile menu */}
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="ml-auto rounded-md p-1.5 text-muted-foreground hover:bg-sidebar-accent hover:text-foreground lg:hidden"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          {/* Collapse toggle (desktop only) */}
+          <button
+            onClick={() => setCollapsed((c) => !c)}
+            className={cn(
+              "ml-auto rounded-md p-1 text-muted-foreground hover:bg-sidebar-accent hover:text-foreground hidden lg:block",
+              collapsed && "mx-auto ml-0",
+            )}
+            aria-label="Toggle sidebar"
+          >
+            <ChevronsLeft
+              className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")}
+            />
+          </button>
+        </div>
+
+        <nav className="relative flex-1 overflow-y-auto px-2 py-4">
+          {filteredNAV.map((section) => (
+            <div key={section.section} className="mb-4">
+              {!collapsed && (
+                <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-primary/70">
+                  {section.section}
+                </p>
+              )}
+              <ul className="space-y-0.5">
+                {section.items.map((item) => {
+                  const active = pathname === item.to;
+                  return (
+                    <li key={item.to}>
+                      <Link
+                        to={item.to as never}
+                        onClick={() => setMobileOpen(false)}
+                        className={cn(
+                          "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                          active
+                            ? "bg-primary/15 text-foreground shadow-sm"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-foreground",
+                        )}
+                      >
+                        {active && (
+                          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r gradient-primary" />
+                        )}
+                        <item.icon
+                          className={cn(
+                            "h-[18px] w-[18px] shrink-0",
+                            active
+                              ? "text-primary"
+                              : "text-muted-foreground group-hover:text-foreground",
+                          )}
+                        />
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </nav>
+
+        <div className="relative hairline-t p-4">
+          <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-violet text-sm font-bold text-primary-foreground shadow-md shadow-primary/20">
+              {(user?.name || "Store Owner")
+                .split(" ")
+                .map((p) => p[0])
+                .filter(Boolean)
+                .slice(0, 2)
+                .join("") || "SO"}
+            </div>
+            {!collapsed && (
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold">{user?.name}</p>
+                <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-primary">
+                  {user?.role}
+                </p>
+              </div>
+            )}
+            {!collapsed && (
+              <button
+                onClick={async () => {
+                  await logout();
+                  navigate({ to: "/login" });
+                }}
+                className="rounded-md p-2 text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-colors"
+                aria-label="Sign out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* Main */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Top bar */}
+        <header className="sticky top-0 z-20 hairline-b glass">
+          <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="rounded-md p-1.5 text-muted-foreground hover:text-foreground lg:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+
+            {/* Back button */}
+            <button
+              onClick={() => window.history.back()}
+              className="rounded-md p-1.5 text-muted-foreground hover:bg-surface/30 hover:text-foreground transition-colors mr-1"
+              title="Go Back"
+            >
+              <ArrowLeft className="h-4.5 w-4.5" />
+            </button>
+
+            <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground shrink-0">
+              <BizoraLogoIcon className="h-5 w-5 shrink-0" />
+              <span className="hidden sm:inline font-bold text-foreground">Bizora AI</span>
+              <ChevronRight className="hidden sm:inline h-3 w-3 text-muted-foreground/60" />
+              <span className="truncate font-semibold text-foreground">{currentLabel}</span>
+            </div>
+
+            <div className="relative ml-3 hidden max-w-xs xl:max-w-sm flex-1 md:block">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <input
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSearchOpen(true);
+                }}
+                onFocus={() => setSearchOpen(true)}
+                placeholder="Search products, customers, suppliers…  ⌘K"
+                className="w-full rounded-md border border-hairline bg-surface py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none"
+              />
+
+              {/* Floating search dropdown */}
+              {searchOpen && searchQuery && (
+                <div className="absolute top-full left-0 right-0 mt-1 max-h-[380px] overflow-y-auto rounded-lg border border-hairline bg-popover p-2 text-xs shadow-2xl z-50 text-foreground">
+                  {/* Backdrop click blocker */}
+                  <div className="fixed inset-0 z-[-1]" onClick={() => setSearchOpen(false)} />
+
+                  {searchResults.products.length === 0 &&
+                  searchResults.customers.length === 0 &&
+                  searchResults.suppliers.length === 0 &&
+                  searchResults.transactions.length === 0 &&
+                  searchResults.purchaseOrders.length === 0 &&
+                  searchResults.expenses.length === 0 &&
+                  searchResults.investments.length === 0 &&
+                  searchResults.logistics.length === 0 ? (
+                    <div className="py-4 text-center text-muted-foreground">
+                      No matches found for "{searchQuery}"
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Products Group */}
+                      {searchResults.products.length > 0 && (
+                        <div>
+                          <p className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Products
+                          </p>
+                          <div className="space-y-0.5 mt-1">
+                            {searchResults.products.map((p) => (
+                              <button
+                                key={p.id}
+                                onClick={() => {
+                                  openProduct360(p.id);
+                                  setSearchQuery("");
+                                  setSearchOpen(false);
+                                }}
+                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface flex justify-between items-center"
+                              >
+                                <span className="font-medium text-foreground">{p.name}</span>
+                                <span className="text-[10px] text-muted-foreground font-mono">
+                                  {p.id}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Customers Group */}
+                      {searchResults.customers.length > 0 && (
+                        <div>
+                          <p className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Customers
+                          </p>
+                          <div className="space-y-0.5 mt-1">
+                            {searchResults.customers.map((c) => (
+                              <button
+                                key={c.id}
+                                onClick={() => {
+                                  openCustomer360(c.id);
+                                  setSearchQuery("");
+                                  setSearchOpen(false);
+                                }}
+                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface flex justify-between items-center"
+                              >
+                                <span className="font-medium text-foreground">{c.name}</span>
+                                <span className="text-[10px] text-muted-foreground">{c.id}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Suppliers Group */}
+                      {searchResults.suppliers.length > 0 && (
+                        <div>
+                          <p className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Suppliers
+                          </p>
+                          <div className="space-y-0.5 mt-1">
+                            {searchResults.suppliers.map((s) => (
+                              <button
+                                key={s.id}
+                                onClick={() => {
+                                  openSupplier360(s.id);
+                                  setSearchQuery("");
+                                  setSearchOpen(false);
+                                }}
+                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface flex justify-between items-center"
+                              >
+                                <span className="font-medium text-foreground">{s.name}</span>
+                                <span className="text-[10px] text-muted-foreground">
+                                  {s.category}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Transactions Group */}
+                      {searchResults.transactions.length > 0 && (
+                        <div>
+                          <p className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Transactions
+                          </p>
+                          <div className="space-y-0.5 mt-1">
+                            {searchResults.transactions.map((t) => (
+                              <button
+                                key={t.id}
+                                onClick={() => {
+                                  navigate({ to: "/transactions" });
+                                  setSearchQuery("");
+                                  setSearchOpen(false);
+                                }}
+                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface flex justify-between items-center"
+                              >
+                                <span className="font-medium text-foreground">
+                                  Receipt {t.id} ({t.customerName || "Walk-in"})
+                                </span>
+                                <span className="text-[10px] text-muted-foreground">
+                                  ₹{t.total}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Purchase Orders Group */}
+                      {searchResults.purchaseOrders.length > 0 && (
+                        <div>
+                          <p className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Purchase Orders
+                          </p>
+                          <div className="space-y-0.5 mt-1">
+                            {searchResults.purchaseOrders.map((po) => (
+                              <button
+                                key={po.id}
+                                onClick={() => {
+                                  navigate({ to: "/purchase-orders" });
+                                  setSearchQuery("");
+                                  setSearchOpen(false);
+                                }}
+                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface flex justify-between items-center"
+                              >
+                                <span className="font-medium text-foreground">
+                                  PO {po.id} ({po.productName})
+                                </span>
+                                <span className="text-[10px] text-muted-foreground">
+                                  {po.status}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Expenses Group */}
+                      {searchResults.expenses.length > 0 && (
+                        <div>
+                          <p className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Expenses
+                          </p>
+                          <div className="space-y-0.5 mt-1">
+                            {searchResults.expenses.map((e) => (
+                              <button
+                                key={e.id}
+                                onClick={() => {
+                                  navigate({ to: "/expenses" });
+                                  setSearchQuery("");
+                                  setSearchOpen(false);
+                                }}
+                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface flex justify-between items-center"
+                              >
+                                <span className="font-medium text-foreground">
+                                  {e.desc}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground font-semibold">
+                                  ₹{e.amount}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Investments Group */}
+                      {searchResults.investments.length > 0 && (
+                        <div>
+                          <p className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Investments
+                          </p>
+                          <div className="space-y-0.5 mt-1">
+                            {searchResults.investments.map((inv) => (
+                              <button
+                                key={inv.id}
+                                onClick={() => {
+                                  navigate({ to: "/market-intelligence" });
+                                  setSearchQuery("");
+                                  setSearchOpen(false);
+                                }}
+                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface flex justify-between items-center"
+                              >
+                                <span className="font-medium text-foreground">
+                                  {inv.assetName} ({inv.symbol})
+                                </span>
+                                <span className="text-[10px] text-muted-foreground">
+                                  ₹{inv.currentValue.toLocaleString("en-IN")}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Logistics Group */}
+                      {searchResults.logistics.length > 0 && (
+                        <div>
+                          <p className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Logistics & Dispatches
+                          </p>
+                          <div className="space-y-0.5 mt-1">
+                            {searchResults.logistics.map((l) => (
+                              <button
+                                key={l.id}
+                                onClick={() => {
+                                  navigate({ to: "/logistics" });
+                                  setSearchQuery("");
+                                  setSearchOpen(false);
+                                }}
+                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface flex justify-between items-center"
+                              >
+                                <span className="font-medium text-foreground">
+                                  Order {l.orderNumber} ({l.customerName})
+                                </span>
+                                <span className="text-[10px] text-muted-foreground">
+                                  {l.status}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
+              <div className="hidden items-center gap-1.5 rounded-md border border-hairline bg-surface px-2.5 py-1 text-[11px] font-medium xl:flex shrink-0">
+                <Circle className="h-2 w-2 fill-success text-success" />
+                Mall Open · 09:00–22:00
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground"
+                onClick={() => navigate({ to: "/time-machine" as never })}
+                title="Time Machine Calendar"
+              >
+                <CalendarDays className="h-4 w-4" />
+              </Button>
+              <LanguageSelector />
+              {/* Theme toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground"
+                onClick={() => {
+                  const html = document.documentElement;
+                  const nowDark = html.classList.contains('dark');
+                  if (nowDark) {
+                    html.classList.remove('dark');
+                    localStorage.setItem('bizora-theme', 'light');
+                    setIsDark(false);
+                  } else {
+                    html.classList.add('dark');
+                    localStorage.setItem('bizora-theme', 'dark');
+                    setIsDark(true);
+                  }
+                }}
+                title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+              {/* Notification bell with dropdown */}
+              <div className="relative" ref={notifRef}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative h-8 w-8 text-muted-foreground"
+                  onClick={() => setNotifOpen((o) => !o)}
+                >
+                  <Bell className="h-4 w-4" />
+                  {totalUnreadNotifs > 0 && (
+                    <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
+                      {Math.min(totalUnreadNotifs, 99)}
+                    </span>
+                  )}
+                </Button>
+
+                {notifOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] max-w-[360px] sm:max-w-[400px] max-h-[80vh] sm:max-h-[480px] overflow-hidden rounded-xl border border-hairline bg-popover shadow-2xl z-50 flex flex-col">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-4 py-3 hairline-b">
+                      <div>
+                        <p className="text-sm font-bold">Notifications</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {totalUnreadNotifs} unread
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const allIds = [
+                            ...(anomalies || []).map((a) => a.id),
+                          ];
+                          if (isEndOfMonth) allIds.push(endOfMonthNotifId);
+                          setReadNotifs(new Set(allIds));
+                        }}
+                        className="text-[11px] font-medium text-primary hover:underline"
+                      >
+                        Mark all read
+                      </button>
+                    </div>
+
+                    {/* Scrollable list */}
+                    <div className="flex-1 overflow-y-auto divide-y divide-hairline">
+                      {/* End of Month Bill Alert */}
+                      {isEndOfMonth && (
+                        <button
+                          key={endOfMonthNotifId}
+                          onClick={() => {
+                            setReadNotifs((prev) => new Set([...prev, endOfMonthNotifId]));
+                            setNotifOpen(false);
+                            navigate({ to: "/expenses" });
+                          }}
+                          className={cn(
+                            "w-full text-left px-4 py-3 hover:bg-surface transition-colors flex gap-3",
+                            !readNotifs.has(endOfMonthNotifId) && "bg-primary/5",
+                          )}
+                        >
+                          <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-indigo-500/10">
+                            <Receipt className="h-4 w-4 text-indigo-500" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-semibold truncate">
+                                Utility Bills Due
+                              </span>
+                              <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold bg-warning/15 text-warning">
+                                Action Required
+                              </span>
+                            </div>
+                            <p className="mt-0.5 text-[11px] text-muted-foreground">
+                              End of month approaching. Please review and pay all outstanding
+                              utility bills (Electricity, Water, Internet, etc).
+                            </p>
+                            <p className="mt-0.5 text-[10px] text-muted-foreground">
+                              System Reminder
+                            </p>
+                          </div>
+                          {!readNotifs.has(endOfMonthNotifId) && (
+                            <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                          )}
+                        </button>
+                      )}
+
+                      {/* Anomaly alerts from database */}
+                      {(anomalies || []).length === 0 && !isEndOfMonth ? (
+                        <div className="py-10 text-center text-xs text-muted-foreground">
+                          No unread notifications
+                        </div>
+                      ) : (
+                        (anomalies || []).map((a) => {
+                          const isRead = readNotifs.has(a.id);
+                          const severityColor =
+                            a.severity === "Critical"
+                              ? "bg-destructive/15 text-destructive"
+                              : a.severity === "High"
+                                ? "bg-warning/15 text-warning"
+                                : a.severity === "Medium"
+                                  ? "bg-info/15 text-info"
+                                  : "bg-muted text-muted-foreground";
+                          return (
+                            <button
+                              key={a.id}
+                              onClick={() => {
+                                setReadNotifs((prev) => new Set([...prev, a.id]));
+                                setNotifOpen(false);
+                                navigate({ to: "/anomalies" });
+                              }}
+                              className={cn(
+                                "w-full text-left px-4 py-3 hover:bg-surface transition-colors flex gap-3",
+                                !isRead && "bg-primary/5",
+                              )}
+                            >
+                              <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-destructive/10">
+                                <AlertTriangle className="h-4 w-4 text-destructive" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-semibold truncate">{a.metric}</span>
+                                  <span
+                                    className={cn(
+                                      "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold",
+                                      severityColor,
+                                    )}
+                                  >
+                                    {a.severity}
+                                  </span>
+                                </div>
+                                <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
+                                  {a.actual} vs expected {a.expected} ({a.deviation})
+                                </p>
+                                <p className="mt-0.5 text-[10px] text-muted-foreground">{a.when}</p>
+                              </div>
+                              {!isRead && (
+                                <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                              )}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="hairline-t px-4 py-2.5 text-center">
+                      <button
+                        onClick={() => {
+                          setNotifOpen(false);
+                          navigate({ to: "/anomalies" });
+                        }}
+                        className="text-[11px] font-semibold text-primary hover:underline"
+                      >
+                        View all anomalies & alerts →
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <Button
+                size="sm"
+                className="h-8 gap-1.5 gradient-primary text-primary-foreground text-xs font-semibold px-2.5 sm:px-3 shrink-0"
+                onClick={() => navigate({ to: "/ai-decisions" })}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Ask Bizora AI</span>
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        <main className="min-w-0 flex-1 pb-24 md:pb-8">
+          <div className="w-full p-3 sm:p-6 lg:p-8">
+            <Outlet />
+          </div>
+        </main>
+
+        {/* Mobile Floating Bottom Navigation Dock */}
+        <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-sidebar/95 backdrop-blur-xl border-t border-hairline px-2 py-1.5 flex items-center justify-around shadow-2xl mobile-bottom-dock">
+          <Link
+            to="/command-center"
+            className={cn(
+              "flex flex-col items-center gap-1 px-3 py-1 rounded-lg text-muted-foreground transition-all active:scale-95",
+              pathname === "/command-center" && "text-primary font-bold bg-primary/10"
+            )}
+          >
+            <LayoutDashboard className="h-4.5 w-4.5" />
+            <span className="text-[10px] font-medium">Home</span>
+          </Link>
+
+          <Link
+            to="/products"
+            className={cn(
+              "flex flex-col items-center gap-1 px-3 py-1 rounded-lg text-muted-foreground transition-all active:scale-95",
+              pathname === "/products" && "text-primary font-bold bg-primary/10"
+            )}
+          >
+            <Package className="h-4.5 w-4.5" />
+            <span className="text-[10px] font-medium">Products</span>
+          </Link>
+
+          <Link
+            to="/billing"
+            className={cn(
+              "flex flex-col items-center gap-1 px-3 py-1 rounded-lg text-muted-foreground transition-all active:scale-95",
+              pathname === "/billing" && "text-primary font-bold bg-primary/10"
+            )}
+          >
+            <div className="grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground shadow-md shadow-primary/30">
+              <ShoppingCart className="h-4 w-4" />
+            </div>
+            <span className="text-[10px] font-medium text-primary">POS</span>
+          </Link>
+
+          <Link
+            to="/customers"
+            className={cn(
+              "flex flex-col items-center gap-1 px-3 py-1 rounded-lg text-muted-foreground transition-all active:scale-95",
+              pathname === "/customers" && "text-primary font-bold bg-primary/10"
+            )}
+          >
+            <Users className="h-4.5 w-4.5" />
+            <span className="text-[10px] font-medium">Customers</span>
+          </Link>
+
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="flex flex-col items-center gap-1 px-3 py-1 rounded-lg text-muted-foreground transition-all active:scale-95"
+          >
+            <Menu className="h-4.5 w-4.5" />
+            <span className="text-[10px] font-medium">Menu</span>
+          </button>
+        </nav>
+
+        {/* Global Details Drawers */}
+        <Product360Drawer
+          productId={activeProductId}
+          open={!!activeProductId}
+          onOpenChange={(open) => !open && openProduct360(null)}
+        />
+        <Customer360Drawer
+          customerId={activeCustomerId}
+          open={!!activeCustomerId}
+          onOpenChange={(open) => !open && openCustomer360(null)}
+        />
+        <Supplier360Drawer
+          supplierId={activeSupplierId}
+          open={!!activeSupplierId}
+          onOpenChange={(open) => !open && openSupplier360(null)}
+        />
+        <RecommendationInvestigateDrawer
+          recId={activeRecId}
+          open={!!activeRecId}
+          onOpenChange={(open) => !open && openRecommendation(null)}
+        />
+      </div>
+    </div>
+  </div>
+  );
+}
