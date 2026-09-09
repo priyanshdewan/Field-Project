@@ -129,11 +129,11 @@ export interface AIResponseContract {
     priority: "high" | "medium" | "low";
     estimatedImpact?: string;
     actionType:
-      | "CREATE_PO"
+      
       | "APPLY_MARKDOWN"
       | "OPEN_PRODUCT"
       | "OPEN_CUSTOMER"
-      | "OPEN_SUPPLIER"
+      
       | "INVESTIGATE_ANOMALY"
       | "NAVIGATE";
     entityId?: string;

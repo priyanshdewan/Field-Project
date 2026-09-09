@@ -25,7 +25,7 @@ const UserSchema = new Schema<IUser>(
     role: { 
       type: String, 
       required: true, 
-      enum: ['ADMIN', 'OWNER', 'MANAGER', 'CASHIER', 'SUPPLIER', 'CUSTOMER', 'EMPLOYEE'],
+      enum: ['ADMIN', 'OWNER', 'MANAGER', 'CASHIER', 'CUSTOMER', 'EMPLOYEE'],
       default: 'OWNER' 
     },
     companyId: { type: Schema.Types.ObjectId, ref: 'Company' },

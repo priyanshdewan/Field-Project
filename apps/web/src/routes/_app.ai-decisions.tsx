@@ -218,52 +218,13 @@ function AskBizora() {
 
   const handleActionConfirm = (action: any) => {
     try {
-      if (action.actionType === "CREATE_PO") {
-        let details = {
-          productId:
-            action.entityId === "rec-dairy-reorder-001" ? "prod-dairy-milk" : "prod-elec-sony",
-          productName:
-            action.entityId === "rec-dairy-reorder-001"
-              ? "Amul Taaza Milk 1L"
-              : "Sony Premium Audio System",
-          supplierId: action.entityId === "rec-dairy-reorder-001" ? "sup-amul" : "sup-sony",
-          supplierName: action.entityId === "rec-dairy-reorder-001" ? "Amul Dairy" : "Sony India",
-          quantity: action.entityId === "rec-dairy-reorder-001" ? 240 : 25,
-          unitCost: action.entityId === "rec-dairy-reorder-001" ? 44 : 1200,
-        };
-
-        if (action.entityId && action.entityId.startsWith("{")) {
-          try {
-            const parsed = JSON.parse(action.entityId);
-            details = { ...details, ...parsed };
-          } catch (e) {
-            console.error("Failed to parse dynamic PO details:", e);
-          }
-        }
-
-        addPurchaseOrder({
-          productId: details.productId,
-          productName: details.productName,
-          supplierId: details.supplierId,
-          supplierName: details.supplierName,
-          quantity: Number(details.quantity),
-          unitCost: Number(details.unitCost),
-          totalCost: Number(details.unitCost) * Number(details.quantity),
-          status: "Draft",
-          source: "AI Decision Center",
-        });
-        toast.success(
-          `Purchase Order Draft created for "${details.productName}"! Verify inside the Purchase Orders view.`,
-        );
-      } else if (action.actionType === "APPLY_MARKDOWN") {
+      if (action.actionType === "APPLY_MARKDOWN") {
         applyMarkdown("prod-packaged-yogurt", "batch-dairy-yogurt-01", 20); // Yogurt product id, batch id, markdown pct
         toast.success("Applied 20% markdown promotion on expiring batch!");
       } else if (action.actionType === "OPEN_PRODUCT" && action.entityId) {
         openProduct360(action.entityId);
       } else if (action.actionType === "OPEN_CUSTOMER" && action.entityId) {
         openCustomer360(action.entityId);
-      } else if (action.actionType === "OPEN_SUPPLIER" && action.entityId) {
-        openSupplier360(action.entityId);
       } else if (action.actionType === "INVESTIGATE_ANOMALY") {
         navigate({ to: "/anomalies" as any });
         toast.info("Navigating to anomalies layout.");

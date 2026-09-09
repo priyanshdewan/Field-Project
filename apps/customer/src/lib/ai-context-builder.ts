@@ -5,7 +5,6 @@ import {
   Expense,
   AIRecommendation,
   Anomaly,
-  Supplier,
   Customer,
 } from "./db";
 import { fmtINR } from "./mock-data";
@@ -15,7 +14,6 @@ import {
   getReorderCandidates,
   getExpiryRisks,
   getVIPCustomers,
-  getSupplierRisks,
   getUtilityAnomalies,
   getDepartmentPerformance,
   getRevenueDrivers,
@@ -195,15 +193,8 @@ export function buildAIContext(query: string, activeDate: string, roleScope?: st
     q.includes("lead time")
   ) {
     intent = "suppliers";
-    const riskySuppliers = getSupplierRisks(resolvedDate, roleScope);
-    evidenceText =
-      "SUPPLIER PERFORMANCE & RISKS:\n" +
-      riskySuppliers
-        .map((s) => {
-          evidenceIds.push(s.id);
-          return `- ${s.name} (ID: ${s.id}): Risk Level: ${s.risk}, On-Time Delivery: ${s.onTime}%, Quality: ${s.quality}%, Avg Lead Time: ${s.lead} days.`;
-        })
-        .join("\n");
+    const riskySuppliers: any[] = [];
+    evidenceText = "SUPPLIER PERFORMANCE & RISKS: No supplier data available in customer view.";
   } else if (
     q.includes("compare") ||
     q.includes("change") ||
@@ -440,7 +431,7 @@ function executeLocalQueryFallbackRaw(
                 title: `Urgent Restock: ${outOfStock[0].name}`,
                 description: `Generate PO to restock ${outOfStock[0].name} (0 stock on hand).`,
                 priority: "high" as const,
-                actionType: "CREATE_PO" as const,
+                actionType: "NAVIGATE" as const,
                 entityId: outOfStock[0].id,
               },
             ]
@@ -480,7 +471,7 @@ function executeLocalQueryFallbackRaw(
       description: `Generate PO for ${p.reorder * 2} units. Product has high sales velocity (${p.sold} units sold) but is currently ${p.stock === 0 ? "out of stock" : "low stock"}.`,
       priority: "high" as const,
       estimatedImpact: `Protects high demand category sales`,
-      actionType: "CREATE_PO" as const,
+      actionType: "NAVIGATE" as const,
       entityId: p.id,
     }));
 
@@ -577,7 +568,7 @@ function executeLocalQueryFallbackRaw(
             "Initiate Sony India SLA audit regarding delivery lead times and onboard local backup supplier.",
           priority: "medium" as const,
           estimatedImpact: "Protects high-margin category stock",
-          actionType: "OPEN_SUPPLIER" as const,
+          actionType: "NAVIGATE" as const,
           entityId: "sup-sony",
         },
         {
@@ -630,7 +621,7 @@ function executeLocalQueryFallbackRaw(
           "Generate draft purchase order for 240 units to prevent immediate grocery shelf depletion.",
         priority: "high",
         estimatedImpact: "₹12,960 PO / ₹16.3K revenue protected",
-        actionType: "CREATE_PO",
+        actionType: "NAVIGATE",
         entityId: "rec-dairy-reorder-001", // link to dairy reorder recommendation
       });
     }
@@ -640,7 +631,7 @@ function executeLocalQueryFallbackRaw(
         description: "Reorder 25 units from Lakmé India distributor.",
         priority: "medium",
         estimatedImpact: "Replenish high-margin Beauty SKU",
-        actionType: "CREATE_PO",
+        actionType: "NAVIGATE",
         entityId: lakme.id,
       });
     }
@@ -773,7 +764,7 @@ function executeLocalQueryFallbackRaw(
 
   // 4. Supplier performance intent
   if (ctx.intent === "suppliers") {
-    const risky = getSupplierRisks(ctx.resolvedDate, roleScope);
+    const risky: any[] = [];
     const sony = risky.find((s) => s.name.includes("Sony"));
 
     return {
@@ -799,7 +790,7 @@ function executeLocalQueryFallbackRaw(
               title: "Review Sony India SLA",
               description: "Initiate formal contract SLA audit review regarding delivery delays.",
               priority: "medium",
-              actionType: "OPEN_SUPPLIER",
+              actionType: "NAVIGATE",
               entityId: sony.id,
             },
           ]
@@ -1025,7 +1016,7 @@ Here is the exact financial reconciliation:
           priority: "high" as const,
           estimatedImpact: "Restores high-margin stock buffer",
           actionType: "NAVIGATE" as const,
-          entityId: "/purchase-orders",
+          entityId: "/inventory",
         },
       ],
       risks: [],
@@ -1072,7 +1063,7 @@ Here is the exact financial reconciliation:
           description: "Establish regional backup distributor for audio SKUs.",
           priority: "high" as const,
           estimatedImpact: "Restores shelf availability",
-          actionType: "OPEN_SUPPLIER" as const,
+          actionType: "NAVIGATE" as const,
           entityId: "sup-sony",
         },
         {
@@ -1187,7 +1178,7 @@ Here is the exact financial reconciliation:
           description: "Open supplier details to review lead times and contact info.",
           priority: "high" as const,
           estimatedImpact: "Reduces shipping bottlenecks",
-          actionType: "OPEN_SUPPLIER" as const,
+          actionType: "NAVIGATE" as const,
           entityId: "sup-sony",
         },
       ],
@@ -1241,7 +1232,7 @@ Here is the exact financial reconciliation:
           description: "Generate PO for 240 units to secure dairy shelf stock.",
           priority: "high" as const,
           estimatedImpact: "Protects grocery revenue",
-          actionType: "CREATE_PO" as const,
+          actionType: "NAVIGATE" as const,
           entityId: "rec-dairy-reorder-001",
         },
       ],
@@ -1339,7 +1330,7 @@ Here is the exact financial reconciliation:
           description: "Generate PO for ₹10,560 from Amul Foods.",
           priority: "high" as const,
           estimatedImpact: "Protects ₹16.3K revenue",
-          actionType: "CREATE_PO" as const,
+          actionType: "NAVIGATE" as const,
           entityId: "rec-dairy-reorder-001",
         },
       ],
@@ -1466,7 +1457,7 @@ Here is the exact financial reconciliation:
           description: "Order 240 units from Amul Foods.",
           priority: "high" as const,
           estimatedImpact: "Protects ₹16.3K revenue",
-          actionType: "CREATE_PO" as const,
+          actionType: "NAVIGATE" as const,
           entityId: "rec-dairy-reorder-001",
         },
       ],
@@ -1551,7 +1542,7 @@ Here is the exact financial reconciliation:
             : ("low" as any),
       estimatedImpact: r.impact,
       actionType: r.title.toLowerCase().includes("reorder")
-        ? "CREATE_PO"
+        ? "NAVIGATE"
         : r.title.toLowerCase().includes("hvac")
           ? "INVESTIGATE_ANOMALY"
           : "APPLY_MARKDOWN",

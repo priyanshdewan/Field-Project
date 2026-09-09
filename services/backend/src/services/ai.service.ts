@@ -16,7 +16,7 @@ export interface AIResponseContract {
     description: string;
     priority: "high" | "medium" | "low";
     estimatedImpact?: string;
-    actionType?: "CREATE_PO" | "APPLY_MARKDOWN" | "INVESTIGATE_ANOMALY" | "OPEN_SUPPLIER" | "NAVIGATE";
+    actionType?: "CREATE_PO" | "APPLY_MARKDOWN" | "INVESTIGATE_ANOMALY" | "NAVIGATE";
     entityId?: string;
   }>;
   risks: Array<{
@@ -42,7 +42,7 @@ export class AiService {
     let recentTransactionsCount = Number(extraData?.clientOrdersCount || 0);
     let grossRevenue = Number(extraData?.clientGrossRevenue || 0);
     let activeAnomalies: any[] = extraData?.clientAnomalies || [];
-    let suppliers: any[] = extraData?.clientSuppliers || [];
+
 
     try {
       const dbProdCount = await this.prisma.product.count().catch(() => 0);
@@ -83,7 +83,6 @@ LIVE STORE TELEMETRY FOR WORKSPACE (${workspaceId}):
 - Recent Sales Transactions: ${recentTransactionsCount || 5} orders
 - Gross Sales Revenue: ₹${grossRevenue || 660}
 - Active Operational Anomalies: ${activeAnomalies.length || 0}
-- Supplier SLA Reliability: Amul Dairy (98% on-time, 2.1d lead time), Parle Foods (96% on-time, 3.0d lead time)
 - Energy Grid Baseline: All meters operating normally within safety thresholds
 `;
 
@@ -99,7 +98,7 @@ Also output your response as valid JSON matching the following contract:
   "summary": "1-line summary",
   "evidence": [{"label": "string", "value": "string"}],
   "reasoning": ["string"],
-  "recommendedActions": [{"title": "string", "description": "string", "priority": "high"|"medium"|"low", "estimatedImpact": "string", "actionType": "CREATE_PO"|"APPLY_MARKDOWN"|"INVESTIGATE_ANOMALY"|"OPEN_SUPPLIER"|"NAVIGATE", "entityId": "string"}],
+  "recommendedActions": [{"title": "string", "description": "string", "priority": "high"|"medium"|"low", "estimatedImpact": "string", "actionType": "CREATE_PO"|"APPLY_MARKDOWN"|"INVESTIGATE_ANOMALY"|"NAVIGATE", "entityId": "string"}],
   "risks": [{"title": "string", "severity": "high"|"medium"|"low"}],
   "confidence": 0.98
 }`;
@@ -139,7 +138,7 @@ Also output your response as valid JSON matching the following contract:
     const isStockQuery = qLower.includes("stock") || qLower.includes("reorder") || qLower.includes("out of") || qLower.includes("buy") || qLower.includes("shortage");
     const isProfitQuery = qLower.includes("profit") || qLower.includes("decline") || qLower.includes("margin") || qLower.includes("revenue") || qLower.includes("sales") || qLower.includes("loss");
     const isEnergyQuery = qLower.includes("energy") || qLower.includes("hvac") || qLower.includes("utility") || qLower.includes("electricity") || qLower.includes("power");
-    const isSupplierQuery = qLower.includes("supplier") || qLower.includes("delivery") || qLower.includes("lead time") || qLower.includes("sony") || qLower.includes("amul");
+
 
     let response: AIResponseContract;
 
@@ -187,7 +186,7 @@ Also output your response as valid JSON matching the following contract:
         lowStockProducts.forEach((p: any) => {
           stockActions.push({
             title: `Reorder ${p.name || "Product"}`,
-            description: `Generate PO for ${p.supplier?.name || "Supplier"} to replenish safety stock.`,
+            description: `Generate PO to replenish safety stock.`,
             priority: "high",
             estimatedImpact: "Protects sales velocity",
             actionType: "CREATE_PO",

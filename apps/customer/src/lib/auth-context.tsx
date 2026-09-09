@@ -11,9 +11,6 @@ export interface User {
   role: Role;
   departmentId: string | null;
   workspaceId: string;
-  isSystemAdmin: boolean;
-  isImpersonating?: boolean;
-  originalAdminId?: string;
 }
 
 interface AuthCtx {
@@ -47,9 +44,6 @@ function mapAuthUserToUser(authUser: AuthUser): User {
     role: mapDbRoleToLocal(authUser.role),
     departmentId: authUser.departmentId,
     workspaceId: authUser.workspaceId,
-    isSystemAdmin: authUser.isSystemAdmin,
-    isImpersonating: authUser.isImpersonating,
-    originalAdminId: authUser.originalAdminId,
   };
 }
 

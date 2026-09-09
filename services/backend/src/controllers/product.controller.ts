@@ -11,7 +11,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
-  @Roles('ADMIN', 'OWNER', 'MANAGER', 'CASHIER', 'EMPLOYEE', 'CUSTOMER', 'SUPPLIER')
+  @Roles('ADMIN', 'OWNER', 'MANAGER', 'CASHIER', 'EMPLOYEE', 'CUSTOMER')
   async listProducts(@Query() query: any, @Req() req: any) {
     try {
       const result = await this.productService.listProducts(query, req.user?.companyId);

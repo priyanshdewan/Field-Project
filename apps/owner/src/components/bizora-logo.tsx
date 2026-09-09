@@ -4,7 +4,7 @@ interface BizoraLogoProps {
   className?: string;
   size?: "sm" | "md" | "lg" | "xl";
   subtitle?: string;
-  variant?: "default" | "admin" | "owner" | "supplier" | "customer" | "web";
+  variant?: "default" | "owner" | "customer" | "web";
 }
 
 export function BizoraLogoIcon({ className }: { className?: string }) {
@@ -71,9 +71,7 @@ export function BizoraLogo({
 
   const variantBadges = {
     default: { text: "AI Decision OS", color: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20" },
-    admin: { text: "SUPER ADMIN CONSOLE", color: "text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20" },
     owner: { text: "BUSINESS OWNER PORTAL", color: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20" },
-    supplier: { text: "SUPPLIER NETWORK HUB", color: "text-sky-600 dark:text-sky-400 bg-sky-500/10 border-sky-500/20" },
     customer: { text: "SHOPPER EXPERIENCE PORTAL", color: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
     web: { text: "ENTERPRISE INTELLIGENCE", color: "text-violet-600 dark:text-violet-400 bg-violet-500/10 border-violet-500/20" },
   };

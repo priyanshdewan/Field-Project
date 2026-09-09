@@ -5,7 +5,6 @@ import {
   Expense,
   AIRecommendation,
   Anomaly,
-  Supplier,
   Customer,
 } from "./db";
 
@@ -148,19 +147,7 @@ export function getVIPCustomers(date: string, roleScope?: string): Customer[] {
   return vips.sort((a, b) => b.spend - a.spend);
 }
 
-export function getSupplierRisks(date: string, roleScope?: string): Supplier[] {
-  const suppliers = db.getSuppliers();
-  // Filter suppliers with risk High/Medium or performance metrics under threshold
-  const risky = suppliers.filter((s) => s.risk === "High" || s.onTime < 80 || s.quality < 80);
 
-  if (roleScope === "manager") {
-    // Filter to suppliers supplying products in Fashion department
-    const fashionProducts = db.getProducts().filter((p) => p.dept === "Fashion");
-    const fashionSupplierNames = new Set(fashionProducts.map((p) => p.supplier));
-    return risky.filter((s) => fashionSupplierNames.has(s.name));
-  }
-  return risky;
-}
 
 export function getUtilityAnomalies(date: string, roleScope?: string): Anomaly[] {
   const anomalies = scopeFilter(db.getAnomalies(), roleScope);
@@ -236,17 +223,3 @@ export function getCustomerInsights(customerId: string) {
   };
 }
 
-export function getSupplierInsights(supplierId: string) {
-  const s = db.getSuppliers().find((supp) => supp.id === supplierId);
-  if (!s) return null;
-  const products = db.getProducts().filter((p) => p.supplier === s.name);
-  const pendingOrders = db
-    .getPurchaseOrders()
-    .filter((po) => po.supplierName === s.name && po.status === "Draft");
-  return {
-    supplier: s,
-    products,
-    pendingOrdersCount: pendingOrders.length,
-    pendingOrdersValue: pendingOrders.reduce((sum, po) => sum + po.totalCost, 0),
-  };
-}

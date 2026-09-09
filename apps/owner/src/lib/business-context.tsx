@@ -3,13 +3,7 @@ import {
   db,
   Product,
   Transaction,
-  Customer,
-  Supplier,
-  Expense,
-  UtilityReading,
-  AIRecommendation,
   Anomaly,
-  PurchaseOrder,
   DailySnapshot,
   getDatesRange,
 } from "./db";
@@ -19,7 +13,6 @@ import { fmtINR, fmtNum } from "./mock-data";
 import { getProductsServer } from "./api-products";
 import { getTransactionsServer } from "./api-transactions";
 import { getCustomersServer } from "./api-customers";
-import { getSuppliers, getPurchaseOrders } from "./api-suppliers";
 import { getExpensesServer } from "./api-expenses";
 import { getAnomaliesServer, getRecommendationsServer } from "./api-analytics";
 import { getUtilitiesServer } from "./api-utilities";
@@ -67,12 +60,10 @@ interface BusinessDataCtx {
   products: Product[];
   transactions: Transaction[];
   customers: Customer[];
-  suppliers: Supplier[];
   expenses: Expense[];
   utilities: UtilityReading[];
   recommendations: AIRecommendation[];
   anomalies: Anomaly[];
-  purchaseOrders: PurchaseOrder[];
   dailySnapshot: DailySnapshot;
   investments: InvestmentItem[];
   logistics: DeliveryItem[];
@@ -101,16 +92,13 @@ interface BusinessDataCtx {
   rejectRecommendation: (id: string) => void;
   applyMarkdown: (productId: string, batchId: string, discountPercent: number) => void;
   resetDemoData: () => void;
-  addPurchaseOrder: (po: Omit<PurchaseOrder, "id" | "date">) => void;
 
   // Drawer Actions and States
   activeProductId: string | null;
   activeCustomerId: string | null;
-  activeSupplierId: string | null;
   activeRecId: string | null;
   openProduct360: (id: string | null) => void;
   openCustomer360: (id: string | null) => void;
-  openSupplier360: (id: string | null) => void;
   openRecommendation: (id: string | null) => void;
 }
 
@@ -128,12 +116,10 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Drawer states
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const [activeCustomerId, setActiveCustomerId] = useState<string | null>(null);
-  const [activeSupplierId, setActiveSupplierId] = useState<string | null>(null);
   const [activeRecId, setActiveRecId] = useState<string | null>(null);
 
   const openProduct360 = (id: string | null) => setActiveProductId(id);
   const openCustomer360 = (id: string | null) => setActiveCustomerId(id);
-  const openSupplier360 = (id: string | null) => setActiveSupplierId(id);
   const openRecommendation = (id: string | null) => setActiveRecId(id);
 
   // Active Date defaults to local today's date
@@ -183,14 +169,12 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
           },
         };
 
-        const [prods, txns, custs, supps, exps, pos, recs, anoms, utils, invs, logs, stf] =
+        const [prods, txns, custs, exps, recs, anoms, utils, invs, logs, stf] =
           await Promise.all([
             getProductsServer(payload).catch(() => []),
             getTransactionsServer(payload).catch(() => []),
             getCustomersServer(payload).catch(() => []),
-            getSuppliers(payload).catch(() => []),
             getExpensesServer(payload).catch(() => []),
-            getPurchaseOrders(payload).catch(() => []),
             getRecommendationsServer(payload).catch(() => []),
             getAnomaliesServer(payload).catch(() => []),
             getUtilitiesServer(payload).catch(() => ({ readings: [] })),
@@ -202,9 +186,7 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
         const safeProds = Array.isArray(prods) ? prods : [];
         const safeTxns = Array.isArray(txns) ? txns : [];
         const safeCusts = Array.isArray(custs) ? custs : [];
-        const safeSupps = Array.isArray(supps) ? supps : [];
         const safeExps = Array.isArray(exps) ? exps : [];
-        const safePOs = Array.isArray(pos) ? pos : [];
         const safeRecs = Array.isArray(recs) ? recs : [];
         const safeAnoms = Array.isArray(anoms) ? anoms : [];
         const safeUtils = Array.isArray(utils?.readings) ? utils.readings : [];
@@ -254,18 +236,6 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
           notes: c.notes,
         }));
 
-        const mappedSuppliers = safeSupps.map((s) => ({
-          id: s.id,
-          name: s.name,
-          contactName: s.contactPerson || s.contactName || "Contact Person",
-          phone: s.phone,
-          suppliedDepts: s.categories || ["General"],
-          leadTimeDays: s.leadTimeDays || 3,
-          onTimeDeliveryPct: s.onTimeDeliveryPct || 98,
-          qualityRating: s.qualityRating || 95,
-          activeOrders: s.activeOrders || 0,
-        }));
-
         const mappedExpenses = safeExps.map((e) => ({
           id: e.id,
           date: e.date,
@@ -275,20 +245,6 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
           amount: e.amount,
           status: e.status as any,
           dept: "All",
-        }));
-
-        const mappedPurchaseOrders = safePOs.map((po) => ({
-          id: po.id,
-          productId: po.productId,
-          productName: po.productName,
-          supplierId: po.supplierId,
-          supplierName: po.supplierName,
-          quantity: po.quantity,
-          unitCost: po.totalCost / (po.quantity || 1),
-          totalCost: po.totalCost,
-          status: po.status as any,
-          date: po.date,
-          source: po.source,
         }));
 
         const mappedRecommendations = safeRecs.map((r: any) => ({
@@ -358,9 +314,7 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
           products: mergedProducts,
           transactions: mergedTransactions,
           customers: mergedCustomers,
-          suppliers: mappedSuppliers,
           expenses: mappedExpenses,
-          purchaseOrders: mappedPurchaseOrders,
           recommendations: mappedRecommendations,
           anomalies: mappedAnomalies,
           utilities: mappedUtilities,
@@ -419,16 +373,6 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     forceRefresh();
   };
 
-  const addPurchaseOrder = (poInput: Omit<PurchaseOrder, "id" | "date">) => {
-    db.addPurchaseOrder({
-      ...poInput,
-      id: `PO-${Date.now().toString().slice(-6)}`,
-      date: activeDate,
-    });
-    toast.success("Purchase order added successfully!");
-    forceRefresh();
-  };
-
   const resetDemoData = () => {
     db.reset();
     setActiveDate(new Date().toISOString().split("T")[0]);
@@ -445,12 +389,10 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const products = db.getProducts();
   const transactions = db.getTransactions();
   const customers = db.getCustomers();
-  const suppliers = db.getSuppliers();
   const expenses = db.getExpenses();
   const utilities = db.getUtilityReadings();
   const recommendations = db.getRecommendations();
   const anomalies = db.getAnomalies();
-  const purchaseOrders = db.getPurchaseOrders();
   const rawDailySnapshot = db.getDailySnapshot(activeDate);
   const dailySnapshot = rawDailySnapshot;
 
@@ -614,12 +556,10 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
         products,
         transactions,
         customers,
-        suppliers,
         expenses,
         utilities,
         recommendations,
         anomalies,
-        purchaseOrders,
         dailySnapshot,
         investments,
         logistics,
@@ -642,14 +582,11 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
         rejectRecommendation,
         applyMarkdown,
         resetDemoData,
-        addPurchaseOrder,
         activeProductId,
         activeCustomerId,
-        activeSupplierId,
         activeRecId,
         openProduct360,
         openCustomer360,
-        openSupplier360,
         openRecommendation,
       }}
     >

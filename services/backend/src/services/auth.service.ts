@@ -3,8 +3,6 @@ import { UserModel, CompanyModel } from '../models';
 import { PasswordUtil } from '../utils/password.util';
 import { JwtUtil } from '../utils/jwt.util';
 import { DatabaseService } from '../database/database.service';
-import { SuppliersService } from './suppliers.service';
-import { SystemAdminService } from './system-admin.service';
 
 @Injectable()
 export class AuthService {
@@ -67,11 +65,8 @@ export class AuthService {
     }
 
     const DEMO_ACCOUNTS: Record<string, { role: string; name: string; isSystemAdmin?: boolean }> = {
-      'admin@gmail.com': { role: 'ADMIN', name: 'System Admin', isSystemAdmin: true },
       'owner@gmail.com': { role: 'OWNER', name: 'Business Owner', isSystemAdmin: false },
       'customer@gmail.com': { role: 'CUSTOMER', name: 'Shopper Customer', isSystemAdmin: false },
-      'supplier@gmail.com': { role: 'SUPPLIER', name: 'Vendor Supplier', isSystemAdmin: false },
-      'khade8915@gmail.com': { role: 'OWNER', name: 'System Super Admin', isSystemAdmin: true },
     };
 
     if (DEMO_ACCOUNTS[emailLower]) {
@@ -104,45 +99,16 @@ export class AuthService {
       };
     }
 
-    // Check store registration status
+    // Check if user exists in Prisma User table
     let regRecord: any = null;
     try {
-      if (this.db?.client?.pendingRegistration) {
-        regRecord = await this.db.client.pendingRegistration.findFirst({
-          where: { ownerEmail: emailLower },
-          orderBy: { createdAt: 'desc' },
-        });
+      if (this.db?.client?.user) {
+        regRecord = await this.db.client.user.findFirst({ where: { email: emailLower } });
       }
     } catch (e) {}
 
     if (!regRecord) {
-      regRecord = SystemAdminService.findRegistrationByEmail(emailLower);
-    }
-
-    if (regRecord) {
-      const status = (regRecord.status || '').toLowerCase();
-      if (status === 'pending') {
-        throw new UnauthorizedException('Your store registration is currently pending review and approval by the System Admin. Access will be granted once approved.');
-      }
-      if (status === 'rejected') {
-        throw new UnauthorizedException('Your store registration was rejected by the System Admin.');
-      }
-      if (status === 'suspended') {
-        throw new UnauthorizedException('Your business account has been suspended by the System Admin.');
-      }
-    } else {
-      // Check if user exists in Prisma User table
-      let dbUser: any = null;
-      try {
-        if (this.db?.client?.user) {
-          dbUser = await this.db.client.user.findFirst({ where: { email: emailLower } });
-        }
-      } catch (e) {}
-
-      if (!dbUser) {
-        throw new UnauthorizedException('No registered store found for this Google account. Please register your store first.');
-      }
-      regRecord = dbUser;
+      throw new UnauthorizedException('No registered store found for this Google account. Please register your store first.');
     }
 
     const cleanName = regRecord.ownerName || regRecord.name || data.name || emailLower.split('@')[0].replace(/[^a-zA-Z]/g, ' ') || 'Store Owner';
@@ -186,11 +152,8 @@ export class AuthService {
 
     // Default accounts for demo & static portal logins with password "123456789"
     const DEMO_ACCOUNTS: Record<string, { role: string; name: string; isSystemAdmin?: boolean }> = {
-      'admin@gmail.com': { role: 'ADMIN', name: 'System Admin', isSystemAdmin: true },
       'owner@gmail.com': { role: 'OWNER', name: 'Business Owner', isSystemAdmin: false },
       'customer@gmail.com': { role: 'CUSTOMER', name: 'Shopper Customer', isSystemAdmin: false },
-      'supplier@gmail.com': { role: 'SUPPLIER', name: 'Vendor Supplier', isSystemAdmin: false },
-      'khade8915@gmail.com': { role: 'OWNER', name: 'System Super Admin', isSystemAdmin: true },
     };
 
     if (DEMO_ACCOUNTS[emailLower]) {
@@ -227,56 +190,7 @@ export class AuthService {
       };
     }
 
-    // Check Prisma supplier table or SuppliersService memory store for owner-provisioned supplier login
-    let dbSupplier: any = null;
-    try {
-      if (this.db?.client?.supplier) {
-        dbSupplier = await this.db.client.supplier.findFirst({
-          where: { email: emailLower }
-        });
-      }
-    } catch (e) {
-      console.error('[AuthService] Prisma supplier lookup error:', e);
-    }
-
-    if (!dbSupplier) {
-      dbSupplier = SuppliersService.findSupplierByEmail(emailLower);
-    }
-
-    if (dbSupplier) {
-      const storedPassword = dbSupplier.password || '123456789';
-      if (data.password !== storedPassword && data.password !== '123456789') {
-        throw new UnauthorizedException('Invalid password for supplier account.');
-      }
-
-      const supName = dbSupplier.name || dbSupplier.contactPerson || emailLower.split('@')[0];
-      const payload = {
-        userId: dbSupplier.id,
-        email: dbSupplier.email,
-        role: 'SUPPLIER',
-        workspaceId: dbSupplier.workspaceId || 'grandsquare-mall',
-        companyId: dbSupplier.workspaceId || 'grandsquare-mall',
-      };
-      const token = JwtUtil.generateAccessToken(payload);
-      const refreshToken = JwtUtil.generateRefreshToken(payload);
-      return {
-        user: {
-          id: dbSupplier.id,
-          email: dbSupplier.email,
-          name: supName,
-          role: 'SUPPLIER',
-          departmentId: null,
-          workspaceId: dbSupplier.workspaceId || 'grandsquare-mall',
-          isSystemAdmin: false,
-          setupCompleted: true,
-        },
-        token,
-        accessToken: token,
-        refreshToken,
-      };
-    }
-
-    // Search for Owner User across Prisma User, Prisma PendingRegistration, SystemAdmin Memory Store, and Mongoose UserModel
+    // Search for Owner User across Prisma User and Mongoose UserModel
     let userRecord: any = null;
 
     // A. Prisma User table
@@ -287,25 +201,6 @@ export class AuthService {
         });
       }
     } catch (e) {}
-
-    // B. Prisma PendingRegistration (Approved)
-    if (!userRecord) {
-      try {
-        if (this.db?.client?.pendingRegistration) {
-          userRecord = await this.db.client.pendingRegistration.findFirst({
-            where: { ownerEmail: emailLower, status: 'Approved' }
-          });
-        }
-      } catch (e) {}
-    }
-
-    // C. SystemAdminService in-memory store (Approved registrations)
-    if (!userRecord) {
-      const memReg = SystemAdminService.findApprovedRegistrationByEmail(emailLower);
-      if (memReg) {
-        userRecord = memReg;
-      }
-    }
 
     // D. Mongoose UserModel
     if (!userRecord) {
@@ -318,27 +213,6 @@ export class AuthService {
     }
 
     if (!userRecord) {
-      let pendingReg: any = null;
-      try {
-        if (this.db?.client?.pendingRegistration) {
-          pendingReg = await this.db.client.pendingRegistration.findFirst({
-            where: { ownerEmail: emailLower }
-          });
-        }
-      } catch (e) {}
-      if (!pendingReg) {
-        pendingReg = SystemAdminService.findRegistrationByEmail(emailLower);
-      }
-
-      if (pendingReg) {
-        const st = (pendingReg.status || '').toLowerCase();
-        if (st === 'pending') {
-          throw new UnauthorizedException('Your store registration is currently pending review and approval by the System Admin. Access will be granted once approved.');
-        }
-        if (st === 'rejected') {
-          throw new UnauthorizedException('Your store registration was rejected by the System Admin.');
-        }
-      }
       throw new UnauthorizedException('Invalid email or password');
     }
 

@@ -32,20 +32,7 @@ export interface ProductBatch {
   markdownPercent?: number;
 }
 
-export interface Supplier {
-  id: string;
-  name: string;
-  category: string;
-  contact: string;
-  spend: number;
-  pending: number;
-  onTime: number; // %
-  quality: number; // %
-  lead: number; // days
-  risk: "Low" | "Medium" | "High";
-  score: number;
-  phone?: string;
-}
+
 
 export interface Customer {
   id: string;
@@ -136,19 +123,7 @@ export interface Anomaly {
   date: string;
 }
 
-export interface PurchaseOrder {
-  id: string;
-  productId: string;
-  productName: string;
-  supplierId: string;
-  supplierName: string;
-  quantity: number;
-  unitCost: number;
-  totalCost: number;
-  status: "Draft" | "Sent" | "Received" | "Cancelled";
-  date: string;
-  source: string; // e.g. "AI Recommendation (REC-01)"
-}
+
 
 export interface DailySnapshot {
   date: string;
@@ -167,14 +142,12 @@ export interface DailySnapshot {
 export interface Schema {
   products: Product[];
   batches: ProductBatch[];
-  suppliers: Supplier[];
   customers: Customer[];
   transactions: Transaction[];
   expenses: Expense[];
   utilities: UtilityReading[];
   recommendations: AIRecommendation[];
   anomalies: Anomaly[];
-  purchaseOrders: PurchaseOrder[];
 }
 
 // Deterministic seedable random number generator (LCG)
@@ -197,112 +170,7 @@ export function dateSeed(dateStr: string): number {
 }
 
 // STATIC SEEDS FOR CONSISTENT BASE DATA
-const BASE_SUPPLIERS: Supplier[] = [
-  {
-    id: "SUP-001",
-    name: "Amul Foods Ltd",
-    category: "Dairy",
-    contact: "Rajesh Patel",
-    spend: 4820000,
-    pending: 320000,
-    onTime: 96,
-    quality: 94,
-    lead: 2.1,
-    risk: "Low",
-    score: 92,
-  },
-  {
-    id: "SUP-002",
-    name: "Nestlé India",
-    category: "Packaged Foods",
-    contact: "Priya Sharma",
-    spend: 3120000,
-    pending: 180000,
-    onTime: 91,
-    quality: 96,
-    lead: 3.4,
-    risk: "Low",
-    score: 90,
-  },
-  {
-    id: "SUP-003",
-    name: "Samsung India",
-    category: "Electronics",
-    contact: "Arjun Mehta",
-    spend: 8420000,
-    pending: 1240000,
-    onTime: 88,
-    quality: 98,
-    lead: 5.2,
-    risk: "Medium",
-    score: 86,
-  },
-  {
-    id: "SUP-004",
-    name: "Levi Strauss India",
-    category: "Apparel",
-    contact: "Neha Kapoor",
-    spend: 2140000,
-    pending: 96000,
-    onTime: 82,
-    quality: 92,
-    lead: 6.8,
-    risk: "Medium",
-    score: 78,
-  },
-  {
-    id: "SUP-005",
-    name: "HUL",
-    category: "FMCG",
-    contact: "Vikram Iyer",
-    spend: 5680000,
-    pending: 240000,
-    onTime: 94,
-    quality: 95,
-    lead: 2.8,
-    risk: "Low",
-    score: 91,
-  },
-  {
-    id: "SUP-006",
-    name: "Britannia Industries",
-    category: "Bakery",
-    contact: "Sanya Deshmukh",
-    spend: 1420000,
-    pending: 42000,
-    onTime: 89,
-    quality: 90,
-    lead: 3.1,
-    risk: "Low",
-    score: 85,
-  },
-  {
-    id: "SUP-007",
-    name: "Sony India",
-    category: "Electronics",
-    contact: "Karan Nair",
-    spend: 3820000,
-    pending: 620000,
-    onTime: 76,
-    quality: 97,
-    lead: 7.4,
-    risk: "High",
-    score: 72,
-  },
-  {
-    id: "SUP-008",
-    name: "Nike India Pvt",
-    category: "Sports",
-    contact: "Ananya Rao",
-    spend: 1980000,
-    pending: 120000,
-    onTime: 92,
-    quality: 96,
-    lead: 4.6,
-    risk: "Low",
-    score: 88,
-  },
-];
+
 
 const BASE_PRODUCTS_TEMPLATE = [
   {
@@ -781,53 +649,11 @@ export function seedDatabase(): Schema {
     status: p.stock <= p.reorder ? (p.stock <= p.reorder / 4 ? "critical" : "low") : "ok",
   }));
 
-  const suppliers = [...BASE_SUPPLIERS];
   const customers = [...BASE_CUSTOMERS];
   const batches: ProductBatch[] = [];
   const transactions: Transaction[] = [];
   const expenses: Expense[] = [];
   const utilities: UtilityReading[] = [];
-  const purchaseOrders: PurchaseOrder[] = [
-    {
-      id: "PO-40019",
-      productId: "SKU-20034",
-      productName: 'Samsung 55" QLED TV',
-      supplierId: "SUP-003",
-      supplierName: "Samsung India",
-      quantity: 6,
-      unitCost: 58200,
-      totalCost: 349200,
-      status: "Sent",
-      date: "2026-05-02",
-      source: "Manual reorder",
-    },
-    {
-      id: "PO-40020",
-      productId: "SKU-50077",
-      productName: "Nike Air Zoom Pegasus",
-      supplierId: "SUP-008",
-      supplierName: "Nike India Pvt",
-      quantity: 15,
-      unitCost: 5200,
-      totalCost: 78000,
-      status: "Received",
-      date: "2026-05-03",
-      source: "AI Recommendation (REC-02)",
-    },
-    {
-      id: "PO-40021",
-      productId: "SKU-80019",
-      productName: "Sony WH-1000XM5",
-      supplierId: "SUP-007",
-      supplierName: "Sony India",
-      quantity: 8,
-      unitCost: 22400,
-      totalCost: 179200,
-      status: "Sent",
-      date: "2026-05-04",
-      source: "Manual reorder",
-    },
-  ];
 
   // Seed initial batches for products
   products.forEach((p) => {
@@ -1121,14 +947,12 @@ export function seedDatabase(): Schema {
   return {
     products,
     batches,
-    suppliers,
     customers,
     transactions,
     expenses,
     utilities,
     recommendations,
     anomalies,
-    purchaseOrders,
   };
 }
 
@@ -1188,10 +1012,6 @@ class SeededDatabase {
     return this.schema.customers;
   }
 
-  public getSuppliers(): Supplier[] {
-    return this.schema.suppliers;
-  }
-
   public getExpenses(): Expense[] {
     return this.schema.expenses;
   }
@@ -1208,18 +1028,9 @@ class SeededDatabase {
     return this.schema.anomalies;
   }
 
-  public getPurchaseOrders(): PurchaseOrder[] {
-    return this.schema.purchaseOrders;
-  }
-
   public updateRecommendationStatus(id: string, status: AIRecommendation["status"]) {
     const updated = this.schema.recommendations.map((r) => (r.id === id ? { ...r, status } : r));
     this.save({ ...this.schema, recommendations: updated });
-  }
-
-  public addPurchaseOrder(po: PurchaseOrder) {
-    const updated = [...this.schema.purchaseOrders, po];
-    this.save({ ...this.schema, purchaseOrders: updated });
   }
 
   public updateProductStock(id: string, newStock: number) {

@@ -5,7 +5,6 @@ import {
   Expense,
   AIRecommendation,
   Anomaly,
-  Supplier,
   Customer,
 } from "./db";
 import { fmtINR } from "./mock-data";
@@ -15,7 +14,6 @@ import {
   getReorderCandidates,
   getExpiryRisks,
   getVIPCustomers,
-  getSupplierRisks,
   getUtilityAnomalies,
   getDepartmentPerformance,
   getRevenueDrivers,
@@ -100,8 +98,7 @@ export function buildAIContext(query: string, activeDate: string, roleScope?: st
     evidenceText = `PROFIT DECLINE EVIDENCE DETAILS:
 - Gross Revenue Spike vs Net Profit Decline over last 30 days.
 - Factor 1: HVAC Zone B Overnight Grid Draw Spike (+163% energy usage increase between 1 AM and 4 AM), causing ₹1,280 daily excess costs (amounting to ₹38,400 monthly leak).
-- Factor 2: Promotional Campaigns & Category Markdowns (15-20% discounts applied across Beauty & Cosmetics and Fashion segments) which expanded sales order counts by +15.6% but compressed average unit profit margins by 5%.
-- Factor 3: Supplier Delay & Lead Time SLA Breach by Sony India (average lead time is 7.4 days vs 4.6 days industry std; reliability score is 72), leading to premium Electronics stock depletion and shifting transactional shopping basket distributions towards lower-margin Grocery items.`;
+- Factor 2: Promotional Campaigns & Category Markdowns (15-20% discounts applied across Beauty & Cosmetics and Fashion segments) which expanded sales order counts by +15.6% but compressed average unit profit margins by 5%.`;
   } else if (
     q.includes("amul") &&
     q.includes("milk") &&
@@ -188,22 +185,7 @@ export function buildAIContext(query: string, activeDate: string, roleScope?: st
           return `- ${c.name} (ID: ${c.id}): Total Spend: ₹${c.spend}, Fav Dept: ${c.favDept}, Churn Risk: ${c.churn}%.`;
         })
         .join("\n");
-  } else if (
-    q.includes("supplier") ||
-    q.includes("delivery") ||
-    q.includes("reliability") ||
-    q.includes("lead time")
-  ) {
-    intent = "suppliers";
-    const riskySuppliers = getSupplierRisks(resolvedDate, roleScope);
-    evidenceText =
-      "SUPPLIER PERFORMANCE & RISKS:\n" +
-      riskySuppliers
-        .map((s) => {
-          evidenceIds.push(s.id);
-          return `- ${s.name} (ID: ${s.id}): Risk Level: ${s.risk}, On-Time Delivery: ${s.onTime}%, Quality: ${s.quality}%, Avg Lead Time: ${s.lead} days.`;
-        })
-        .join("\n");
+
   } else if (
     q.includes("compare") ||
     q.includes("change") ||
@@ -275,19 +257,18 @@ export function buildAIContext(query: string, activeDate: string, roleScope?: st
   ) {
     intent = "cross_domain_problem";
     evidenceText =
-      "CROSS-DOMAIN INTEGRATED CONTEXT: CRM customer loyalty, Sony India supplier delays, and premium headphones stockout correlation.";
+      "CROSS-DOMAIN INTEGRATED CONTEXT: CRM customer loyalty and premium headphones stockout correlation.";
   } else if (q.includes("churn") && (q.includes("retain") || q.includes("risk"))) {
     intent = "customer_churn_ranking";
     evidenceText =
       "CUSTOMER CHURN RISK RANKING CONTEXT: High churn-risk VIP segments and margin contributions.";
   } else if (
     q.includes("hidden business risk") ||
-    q.includes("creates the highest hidden") ||
-    (q.includes("supplier") && q.includes("hidden"))
+    q.includes("creates the highest hidden")
   ) {
     intent = "supplier_risk_ranking";
     evidenceText =
-      "SUPPLIER HIDDEN RISK CONTEXT: Supplier SLA breaches, lead times, and SKU stockout exposures.";
+      "HIDDEN RISK CONTEXT: Lead times and SKU stockout exposures.";
   } else if (q.includes("demand increases by") || q.includes("20%")) {
     intent = "demand_surge_simulation";
     evidenceText =
@@ -312,7 +293,7 @@ export function buildAIContext(query: string, activeDate: string, roleScope?: st
   } else if (q.includes("single best action") || q.includes("expected business performance")) {
     intent = "best_action_recommendation";
     evidenceText =
-      "BEST ACTION RECOMMENDATION ANALYSIS: Evaluating HVAC maintenance, supplier SLA renegotiation, and VIP outreach.";
+      "BEST ACTION RECOMMENDATION ANALYSIS: Evaluating HVAC maintenance and VIP outreach.";
   } else if (q.includes("challenge") || q.includes("highest-priority recommendation")) {
     intent = "challenge_recommendation";
     evidenceText =
@@ -440,7 +421,7 @@ function executeLocalQueryFallbackRaw(
                 title: `Urgent Restock: ${outOfStock[0].name}`,
                 description: `Generate PO to restock ${outOfStock[0].name} (0 stock on hand).`,
                 priority: "high" as const,
-                actionType: "CREATE_PO" as const,
+                actionType: "NAVIGATE" as const,
                 entityId: outOfStock[0].id,
               },
             ]
@@ -480,7 +461,7 @@ function executeLocalQueryFallbackRaw(
       description: `Generate PO for ${p.reorder * 2} units. Product has high sales velocity (${p.sold} units sold) but is currently ${p.stock === 0 ? "out of stock" : "low stock"}.`,
       priority: "high" as const,
       estimatedImpact: `Protects high demand category sales`,
-      actionType: "CREATE_PO" as const,
+      actionType: "NAVIGATE" as const,
       entityId: p.id,
     }));
 
@@ -529,13 +510,12 @@ function executeLocalQueryFallbackRaw(
     const answer = `Over the last 30 days, net profit declined despite a spike in gross revenue. The AI has diagnosed three primary contributing factors and quantified each using actual central database logs:
 
 1. **HVAC Compressor Malfunction (Zone B)**: Overnight electricity usage spiked by **+163%** between 1 AM and 4 AM. This HVAC zone compressor failure resulted in a cost overhead of **₹1,280 daily** (which equates to **₹38,400 monthly** in direct cash leaks).
-2. **Promotional Margin Compression**: In response to marketing initiatives, average markdown discounts of **15% to 20%** were offered across Beauty and Fashion departments. While this expanded total sales orders by **+15.6%**, the average product unit margins compressed by **5%**.
-3. **Sony India Supplier Delays**: Sony India lead times rose to **7.4 days** (vs 4.6 days industry average). This caused critical out-of-stock events on premium, high-margin electronics, shifting the shopping basket sales distribution toward lower-margin grocery items.`;
+2. **Promotional Margin Compression**: In response to marketing initiatives, average markdown discounts of **15% to 20%** were offered across Beauty and Fashion departments. While this expanded total sales orders by **+15.6%**, the average product unit margins compressed by **5%**.`;
 
     return {
       answer,
       summary:
-        "Net profit was compressed by HVAC utility spikes, markdown discounts, and electronics stockouts.",
+        "Net profit was compressed by HVAC utility spikes and markdown discounts.",
       evidence: [
         {
           label: "HVAC Zone B Overnight Excess Cost",
@@ -549,17 +529,11 @@ function executeLocalQueryFallbackRaw(
           sourceType: "expense",
           sourceId: "exp-mktg-promo-001",
         },
-        {
-          label: "Sony India SLA Lead Time Delay",
-          value: "7.4 days vs 4.6 days standard",
-          sourceType: "supplier",
-          sourceId: "sup-sony",
         },
       ],
       reasoning: [
         "Analyzed Zone B hourly energy logs to isolate overnight HVAC grid draw spikes.",
         "Correlated 15-20% beauty & fashion discount promotions with average transaction margins.",
-        "Cross-referenced Sony India lead times with electronics category stockout logs.",
       ],
       recommendedActions: [
         {
@@ -570,15 +544,6 @@ function executeLocalQueryFallbackRaw(
           estimatedImpact: "₹38,400 monthly savings",
           actionType: "INVESTIGATE_ANOMALY" as const,
           entityId: "anom-util-hvac-001",
-        },
-        {
-          title: "Optimize Sony SLA & Stock Backup",
-          description:
-            "Initiate Sony India SLA audit regarding delivery lead times and onboard local backup supplier.",
-          priority: "medium" as const,
-          estimatedImpact: "Protects high-margin category stock",
-          actionType: "OPEN_SUPPLIER" as const,
-          entityId: "sup-sony",
         },
         {
           title: "Promote Cosmetics to Fashion VIPs",
@@ -592,7 +557,6 @@ function executeLocalQueryFallbackRaw(
       ],
       risks: [
         { title: "HVAC compressor valve deterioration", severity: "high" as const },
-        { title: "Sony premium product category stockout", severity: "high" as const },
       ],
       confidence: 0.96,
     };
@@ -630,7 +594,7 @@ function executeLocalQueryFallbackRaw(
           "Generate draft purchase order for 240 units to prevent immediate grocery shelf depletion.",
         priority: "high",
         estimatedImpact: "₹12,960 PO / ₹16.3K revenue protected",
-        actionType: "CREATE_PO",
+        actionType: "NAVIGATE",
         entityId: "rec-dairy-reorder-001", // link to dairy reorder recommendation
       });
     }
@@ -640,7 +604,7 @@ function executeLocalQueryFallbackRaw(
         description: "Reorder 25 units from Lakmé India distributor.",
         priority: "medium",
         estimatedImpact: "Replenish high-margin Beauty SKU",
-        actionType: "CREATE_PO",
+        actionType: "NAVIGATE",
         entityId: lakme.id,
       });
     }
@@ -771,43 +735,7 @@ function executeLocalQueryFallbackRaw(
     };
   }
 
-  // 4. Supplier performance intent
-  if (ctx.intent === "suppliers") {
-    const risky = getSupplierRisks(ctx.resolvedDate, roleScope);
-    const sony = risky.find((s) => s.name.includes("Sony"));
 
-    return {
-      answer: sony
-        ? "Sony India is currently flagged as our highest-risk supplier partner (Reliability Score: 72). They average 7.4 days lead time vs 4.6 days industry standard, with on-time delivery of only 76%."
-        : `Supplier SLA compliances are currently in line with target ratings.`,
-      summary: sony
-        ? "Sony India logistics bottlenecks affecting electronics stocks."
-        : "Supplier ratings are optimal.",
-      evidence: risky.map((s) => ({
-        label: s.name,
-        value: `Score: ${s.score} | Lead Time: ${s.lead}d`,
-        sourceType: "supplier",
-        sourceId: s.id,
-      })),
-      reasoning: [
-        "Sony warehouse renovations in the West region have caused logistics dispatch backlogs.",
-        "Secondary local backups for key SKUs are missing, elevating stockout vulnerabilities.",
-      ],
-      recommendedActions: sony
-        ? [
-            {
-              title: "Review Sony India SLA",
-              description: "Initiate formal contract SLA audit review regarding delivery delays.",
-              priority: "medium",
-              actionType: "OPEN_SUPPLIER",
-              entityId: sony.id,
-            },
-          ]
-        : [],
-      risks: sony ? [{ title: "Electronics category shipment backlogs", severity: "medium" }] : [],
-      confidence: 0.89,
-    };
-  }
 
   // 5. Comparison Intent
   if (ctx.intent === "comparison") {
@@ -1013,7 +941,7 @@ function executeLocalQueryFallbackRaw(
             : ("low" as any),
       estimatedImpact: r.impact,
       actionType: r.title.toLowerCase().includes("reorder")
-        ? "CREATE_PO"
+        ? "NAVIGATE"
         : r.title.toLowerCase().includes("hvac")
           ? "INVESTIGATE_ANOMALY"
           : "APPLY_MARKDOWN",

@@ -116,9 +116,6 @@ function OwnerLoginPage() {
   const getRedirectTarget = (u?: any) => {
     const activeUser = u || user;
     if (!redirect) {
-      if (activeUser?.isSystemAdmin) {
-        return "/system-admin";
-      }
       return "/command-center";
     }
     try {

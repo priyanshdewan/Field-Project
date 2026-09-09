@@ -32,20 +32,7 @@ export interface ProductBatch {
   markdownPercent?: number;
 }
 
-export interface Supplier {
-  id: string;
-  name: string;
-  category: string;
-  contact: string;
-  spend: number;
-  pending: number;
-  onTime: number; // %
-  quality: number; // %
-  lead: number; // days
-  risk: "Low" | "Medium" | "High";
-  score: number;
-  phone?: string;
-}
+
 
 export interface Customer {
   id: string;
@@ -136,19 +123,7 @@ export interface Anomaly {
   date: string;
 }
 
-export interface PurchaseOrder {
-  id: string;
-  productId: string;
-  productName: string;
-  supplierId: string;
-  supplierName: string;
-  quantity: number;
-  unitCost: number;
-  totalCost: number;
-  status: "Draft" | "Sent" | "Received" | "Cancelled";
-  date: string;
-  source: string; // e.g. "AI Recommendation (REC-01)"
-}
+
 
 export interface DailySnapshot {
   date: string;
@@ -167,14 +142,12 @@ export interface DailySnapshot {
 export interface Schema {
   products: Product[];
   batches: ProductBatch[];
-  suppliers: Supplier[];
   customers: Customer[];
   transactions: Transaction[];
   expenses: Expense[];
   utilities: UtilityReading[];
   recommendations: AIRecommendation[];
   anomalies: Anomaly[];
-  purchaseOrders: PurchaseOrder[];
 }
 
 // Deterministic seedable random number generator (LCG)
@@ -197,112 +170,7 @@ export function dateSeed(dateStr: string): number {
 }
 
 // STATIC SEEDS FOR CONSISTENT BASE DATA
-const BASE_SUPPLIERS: Supplier[] = [
-  {
-    id: "SUP-001",
-    name: "Amul Foods Ltd",
-    category: "Dairy",
-    contact: "Rajesh Patel",
-    spend: 4820000,
-    pending: 320000,
-    onTime: 96,
-    quality: 94,
-    lead: 2.1,
-    risk: "Low",
-    score: 92,
-  },
-  {
-    id: "SUP-002",
-    name: "Nestlé India",
-    category: "Packaged Foods",
-    contact: "Priya Sharma",
-    spend: 3120000,
-    pending: 180000,
-    onTime: 91,
-    quality: 96,
-    lead: 3.4,
-    risk: "Low",
-    score: 90,
-  },
-  {
-    id: "SUP-003",
-    name: "Samsung India",
-    category: "Electronics",
-    contact: "Arjun Mehta",
-    spend: 8420000,
-    pending: 1240000,
-    onTime: 88,
-    quality: 98,
-    lead: 5.2,
-    risk: "Medium",
-    score: 86,
-  },
-  {
-    id: "SUP-004",
-    name: "Levi Strauss India",
-    category: "Apparel",
-    contact: "Neha Kapoor",
-    spend: 2140000,
-    pending: 96000,
-    onTime: 82,
-    quality: 92,
-    lead: 6.8,
-    risk: "Medium",
-    score: 78,
-  },
-  {
-    id: "SUP-005",
-    name: "HUL",
-    category: "FMCG",
-    contact: "Vikram Iyer",
-    spend: 5680000,
-    pending: 240000,
-    onTime: 94,
-    quality: 95,
-    lead: 2.8,
-    risk: "Low",
-    score: 91,
-  },
-  {
-    id: "SUP-006",
-    name: "Britannia Industries",
-    category: "Bakery",
-    contact: "Sanya Deshmukh",
-    spend: 1420000,
-    pending: 42000,
-    onTime: 89,
-    quality: 90,
-    lead: 3.1,
-    risk: "Low",
-    score: 85,
-  },
-  {
-    id: "SUP-007",
-    name: "Sony India",
-    category: "Electronics",
-    contact: "Karan Nair",
-    spend: 3820000,
-    pending: 620000,
-    onTime: 76,
-    quality: 97,
-    lead: 7.4,
-    risk: "High",
-    score: 72,
-  },
-  {
-    id: "SUP-008",
-    name: "Nike India Pvt",
-    category: "Sports",
-    contact: "Ananya Rao",
-    spend: 1980000,
-    pending: 120000,
-    onTime: 92,
-    quality: 96,
-    lead: 4.6,
-    risk: "Low",
-    score: 88,
-  },
-];
+
 
 const BASE_PRODUCTS_TEMPLATE = [
   {
@@ -1121,14 +989,12 @@ export function seedDatabase(): Schema {
   return {
     products,
     batches,
-    suppliers,
     customers,
     transactions,
     expenses,
     utilities,
     recommendations,
     anomalies,
-    purchaseOrders,
   };
 }
 
@@ -1136,14 +1002,12 @@ export function emptyDatabase(): Schema {
   return {
     products: [],
     batches: [],
-    suppliers: [],
     customers: [],
     transactions: [],
     expenses: [],
     utilities: [],
     recommendations: [],
     anomalies: [],
-    purchaseOrders: [],
   };
 }
 
@@ -1209,34 +1073,6 @@ class SeededDatabase {
     return this.schema.customers;
   }
 
-  public getSuppliers(): Supplier[] {
-    const memory = this.schema.suppliers || [];
-    let custom: Supplier[] = [];
-    if (typeof window !== "undefined") {
-      try {
-        const stored = window.localStorage.getItem("bizora_custom_suppliers");
-        if (stored) custom = JSON.parse(stored);
-      } catch (e) {}
-    }
-    const combinedMap = new Map<string, Supplier>();
-    memory.forEach((s) => {
-      if (s) combinedMap.set(s.id || s.email, s);
-    });
-    custom.forEach((s) => {
-      if (s) combinedMap.set(s.id || s.email, s);
-    });
-    return Array.from(combinedMap.values());
-  }
-
-  public addSupplier(s: Supplier) {
-    if (!this.schema.suppliers) this.schema.suppliers = [];
-    const exists = this.schema.suppliers.some(
-      (x) => x.id === s.id || (x.email && x.email === s.email),
-    );
-    if (!exists) {
-      this.schema.suppliers = [s, ...this.schema.suppliers];
-      this.save(this.schema);
-    }
     if (typeof window !== "undefined") {
       try {
         const stored = window.localStorage.getItem("bizora_custom_suppliers");

@@ -287,7 +287,6 @@ export const INDUSTRY_CONFIGS: Record<string, IndustryConfig> = {
     shortcuts: [
       { label: "Rapid POS Checkout", path: "/billing", iconName: "Barcode", desc: "High-speed barcode scanner" },
       { label: "Dairy & Produce Expiry", path: "/expiry", iconName: "Clock", desc: "Daily expiry management" },
-      { label: "Wholesale Supplier POs", path: "/purchase-orders", iconName: "Truck", desc: "Direct manufacturer orders" },
       { label: "Customer Loyalty", path: "/customers", iconName: "HeartHandshake", desc: "Grocery reward points" },
     ],
     realtimeAnomaly: {
@@ -369,7 +368,6 @@ export const INDUSTRY_CONFIGS: Record<string, IndustryConfig> = {
     shortcuts: [
       { label: "Fast POS Barcode", path: "/billing", iconName: "Barcode", desc: "Multi-counter checkout" },
       { label: "Produce Expiry Radar", path: "/expiry", iconName: "Clock", desc: "Daily expiry management" },
-      { label: "Warehouse Restock", path: "/purchase-orders", iconName: "Truck", desc: "Direct depot replenishment" },
       { label: "Shopper Loyalty Club", path: "/customers", iconName: "HeartHandshake", desc: "Digital points & coupons" },
     ],
     realtimeAnomaly: {

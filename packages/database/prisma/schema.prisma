@@ -33,20 +33,14 @@ model Workspace {
   inventoryStocks    InventoryStock[]
   inventoryLocs      InventoryLocation[]
   movements          InventoryMovement[]
-  suppliers          Supplier[]
-  purchaseOrders     PurchaseOrder[]
   departments        Department[]
   categories         Category[]
   expenses           Expense[]
   expenseCategories  ExpenseCategory[]
   incomeRecords      IncomeRecord[]
-  goodsReceipts      GoodsReceipt[]
   batches            ProductBatch[]
-  supplierProducts   SupplierProduct[]
   payments           Payment[]
   transactionItems   TransactionItem[]
-  purchaseOrderItems PurchaseOrderItem[]
-  goodsReceiptItems  GoodsReceiptItem[]
   utilityMeters      UtilityMeter[]
   utilityReadings    UtilityReading[]
   staff              Staff[]
@@ -79,32 +73,6 @@ model WorkspaceSettings {
   updatedAt   DateTime  @updatedAt
 }
 
-model PendingRegistration {
-  id             String   @id @default(uuid())
-  companyName    String
-  businessType   String
-  industry       String
-  gstNumber      String?
-  companyWebsite String?
-  ownerName      String
-  ownerEmail     String   @unique
-  mobileNumber   String
-  designation    String
-  country       String
-  state         String
-  city          String
-  address       String
-  employeeCount String
-  branchCount   String
-  revenueRange  String
-  timezone      String   @default("Asia/Kolkata")
-  currency      String   @default("INR")
-  passwordHash  String
-  status        String   @default("Pending") // Pending, Approved, Rejected
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
 model LoginHistory {
   id        String   @id @default(uuid())
   userId    String
@@ -113,16 +81,6 @@ model LoginHistory {
   userAgent String?
   status    String
   timestamp DateTime @default(now())
-}
-
-model ApprovalLog {
-  id             String   @id @default(uuid())
-  adminId        String
-  admin          User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
-  registrationId String
-  action         String
-  notes          String?
-  timestamp      DateTime @default(now())
 }
 
 model User {
@@ -139,7 +97,6 @@ model User {
   workspaceId   String
   workspace     Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   loginHistory  LoginHistory[]
-  approvalLogs  ApprovalLog[]
   workspaceMembers WorkspaceMember[]
 
   @@unique([email, workspaceId])
@@ -219,8 +176,6 @@ model Product {
   movements         InventoryMovement[]
   batches           ProductBatch[]
   transactionItems  TransactionItem[]
-  poItems           PurchaseOrderItem[]
-  goodsReceiptItems GoodsReceiptItem[]
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   workspaceId   String
@@ -228,48 +183,6 @@ model Product {
 
   @@unique([sku, workspaceId])
   @@unique([barcode, workspaceId])
-}
-
-model Supplier {
-  id                 String            @id @default(uuid())
-  supplierCode       String
-  name               String
-  contactPerson      String
-  email              String
-  phone              String
-  address            String
-  password           String            @default("123456789")
-  paymentTerms       String
-  leadTimeDays       Int
-  onTimeDeliveryRate Decimal           @default(100.00) @db.Decimal(5, 2)
-  qualityScore       Decimal           @default(100.00) @db.Decimal(5, 2)
-  riskScore          Decimal           @default(0.00) @db.Decimal(5, 2)
-  status             String            @default("Active") // Active, Archived
-  supplierProducts   SupplierProduct[]
-  batches            ProductBatch[]
-  purchaseOrders     PurchaseOrder[]
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  workspaceId   String
-  workspace     Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@unique([supplierCode, workspaceId])
-  @@unique([email, workspaceId])
-}
-
-model SupplierProduct {
-  id                   String     @id @default(uuid())
-  supplierId           String
-  supplier             Supplier   @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  productId            String
-  supplierPrice        Decimal    @db.Decimal(14, 2)
-  minimumOrderQuantity Int
-  leadTimeDays         Int
-  preferred            Boolean    @default(false)
-  createdAt            DateTime   @default(now())
-  updatedAt            DateTime   @updatedAt
-  workspaceId   String
-  workspace     Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
 model InventoryLocation {
@@ -328,8 +241,7 @@ model ProductBatch {
   quantityReceived  Int
   quantityRemaining Int
   costPrice         Decimal           @db.Decimal(14, 2)
-  supplierId        String
-  supplier          Supplier          @relation(fields: [supplierId], references: [id])
+  supplierId        String?
   receivedAt        DateTime          @default(now())
   status            String            @default("Safe") // Safe, Warning, Expired, Markdown
   transactionItems  TransactionItem[]
@@ -434,68 +346,6 @@ model IncomeRecord {
   description  String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  workspaceId   String
-  workspace     Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-}
-
-model PurchaseOrder {
-  id                   String              @id @default(uuid())
-  poNumber             String
-  supplierId           String
-  supplier             Supplier            @relation(fields: [supplierId], references: [id])
-  departmentId         String?
-  status               String              @default("Draft") // Draft, Ordered, Received, Cancelled
-  orderDate            DateTime            @default(now())
-  expectedDeliveryDate DateTime?
-  subtotal             Decimal             @db.Decimal(14, 2)
-  taxAmount            Decimal             @db.Decimal(14, 2)
-  totalAmount          Decimal             @db.Decimal(14, 2)
-  createdBy            String
-  approvedBy           String?
-  notes                String?
-  items                PurchaseOrderItem[]
-  goodsReceipts        GoodsReceipt[]
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
-  workspaceId   String
-  workspace     Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@unique([poNumber, workspaceId])
-}
-
-model PurchaseOrderItem {
-  id               String        @id @default(uuid())
-  purchaseOrderId  String
-  purchaseOrder    PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
-  productId        String
-  product          Product       @relation(fields: [productId], references: [id])
-  quantity         Int
-  receivedQuantity Int           @default(0)
-  unitCost         Decimal       @db.Decimal(14, 2)
-  lineTotal        Decimal       @db.Decimal(14, 2)
-  workspaceId   String
-  workspace     Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-}
-
-model GoodsReceipt {
-  id              String             @id @default(uuid())
-  purchaseOrderId String
-  purchaseOrder   PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id])
-  receivedAt      DateTime           @default(now())
-  receivedBy      String
-  notes           String?
-  items           GoodsReceiptItem[]
-  workspaceId   String
-  workspace     Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-}
-
-model GoodsReceiptItem {
-  id             String       @id @default(uuid())
-  goodsReceiptId String
-  goodsReceipt   GoodsReceipt @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
-  productId      String
-  product        Product      @relation(fields: [productId], references: [id])
-  quantity       Int
   workspaceId   String
   workspace     Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
@@ -783,4 +633,3 @@ model ApprovalAudit {
   actionType     String // APPROVE, REJECT, SUSPEND, REACTIVATE
   registrationId String?
 }
-

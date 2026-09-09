@@ -4,7 +4,6 @@ import { softDeletePlugin, SoftDeleteDocument } from './plugins/soft-delete.plug
 export interface IProduct extends Document, SoftDeleteDocument {
   companyId: Schema.Types.ObjectId;
   categoryId?: Schema.Types.ObjectId;
-  supplierId?: Schema.Types.ObjectId;
   sku: string;
   barcode?: string;
   name: string;
@@ -21,7 +20,6 @@ const ProductSchema = new Schema<IProduct>(
   {
     companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
     categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
-    supplierId: { type: Schema.Types.ObjectId, ref: 'Supplier' },
     sku: { type: String, required: true, trim: true },
     barcode: { type: String, trim: true },
     name: { type: String, required: true, trim: true },

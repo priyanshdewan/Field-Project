@@ -16,8 +16,6 @@ export class JwtAuthGuard implements CanActivate {
     if (token.startsWith('demo_token_')) {
       const email = token.replace('demo_token_user-', '').replace(/-/g, '@');
       let role = 'OWNER';
-      if (token.includes('admin')) { role = 'ADMIN'; }
-      if (token.includes('supplier')) { role = 'SUPPLIER'; }
       if (token.includes('customer')) { role = 'CUSTOMER'; }
 
       request.user = {

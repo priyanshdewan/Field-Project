@@ -40,9 +40,6 @@ function CustomerLoginPage() {
   const getRedirectTarget = (u?: any) => {
     const activeUser = u || user;
     if (!redirect) {
-      if (activeUser?.isSystemAdmin) {
-        return "/system-admin";
-      }
       return "/customer-portal";
     }
     try {

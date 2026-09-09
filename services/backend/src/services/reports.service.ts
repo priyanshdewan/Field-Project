@@ -6,26 +6,7 @@ export class ReportsService {
   constructor(private prisma: DatabaseService) {}
 
   async getPaymentReports(workspaceId: string) {
-    const suppliers = await this.prisma.supplier.findMany({
-      where: { workspaceId },
-      include: { purchaseOrders: true },
-    });
-
-    const accountsPayable = suppliers
-      .map((s) => {
-        const pendingPOs = s.purchaseOrders.filter((po) =>
-          ['Draft', 'Ordered', 'Sent', 'Approved', 'Submitted'].includes(po.status),
-        );
-        const amountOwed = pendingPOs.reduce((sum, po) => sum + Number(po.totalAmount), 0);
-        return {
-          id: s.id,
-          name: s.name,
-          amountOwed,
-          poCount: pendingPOs.length,
-        };
-      })
-      .filter((s) => s.amountOwed > 0)
-      .sort((a, b) => b.amountOwed - a.amountOwed);
+    const accountsPayable: any[] = [];
 
     const transactions = await this.prisma.transaction.findMany({
       where: {

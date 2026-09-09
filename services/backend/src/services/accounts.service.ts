@@ -16,19 +16,7 @@ export class AccountsService {
       orderBy: { transactionDate: 'desc' },
     });
 
-    const paidEntries = await this.db.ledgerEntry.findMany({
-      where: { workspaceId, referenceType: 'PurchaseOrderPayment' },
-      select: { referenceId: true },
-    });
-    const paidPoIds = new Set(paidEntries.map((e) => e.referenceId).filter(Boolean));
 
-    const payables = await this.db.purchaseOrder.findMany({
-      where: { workspaceId, status: { in: ['Submitted', 'Ordered', 'Partially_Received', 'Sent', 'Received'] } },
-      include: { supplier: true },
-      orderBy: { orderDate: 'desc' },
-    });
-
-    const unpaidPayables = payables.filter((p) => !paidPoIds.has(p.id));
 
     const fds = await this.db.fixedDeposit.findMany({
       where: { workspaceId },
@@ -67,16 +55,7 @@ export class AccountsService {
         customerName: r.customer ? `${r.customer.firstName} ${r.customer.lastName}`.trim() : 'Walk-in Customer',
         customerId: r.customerId,
       })),
-      payables: unpaidPayables.map((p) => ({
-        id: p.id,
-        poNumber: p.poNumber,
-        date: p.orderDate.toISOString(),
-        amount: Number(p.totalAmount),
-        status: p.status,
-        supplierName: p.supplier ? p.supplier.name : 'Unknown Supplier',
-        supplierId: p.supplierId,
-        isPaid: false,
-      })),
+      payables: [],
       fds: fds.map((f) => ({
         id: f.id,
         bankName: f.bankName,
@@ -214,43 +193,5 @@ export class AccountsService {
     });
   }
 
-  async payPurchaseOrder(workspaceId: string, poId: string) {
-    return this.db.$transaction(async (tx) => {
-      await this.ledgerService.seedLedgerAccounts(tx, workspaceId);
 
-      const po = await tx.purchaseOrder.findUnique({
-        where: { id: poId, workspaceId },
-      });
-      if (!po) throw new BadRequestException('Purchase Order not found.');
-
-      const existingPayment = await tx.ledgerEntry.findFirst({
-        where: { workspaceId, referenceType: 'PurchaseOrderPayment', referenceId: po.id },
-      });
-      if (existingPayment) throw new BadRequestException('This Purchase Order has already been paid.');
-
-      const cashAccount = await tx.ledgerAccount.findFirst({
-        where: { code: '1000', workspaceId },
-        include: { entries: true },
-      });
-      const cashBalance = cashAccount
-        ? cashAccount.entries.reduce((sum, e) => sum + Number(e.debitAmount) - Number(e.creditAmount), 0)
-        : 0;
-
-      const poAmount = Number(po.totalAmount);
-      if (cashBalance < poAmount) {
-        throw new BadRequestException(`Insufficient cash reserves. Requires ₹${poAmount}.`);
-      }
-
-      await this.ledgerService.recordDoubleEntry(tx, workspaceId, {
-        journalId: `JNL-PAY-PO-${po.id}`,
-        referenceType: 'PurchaseOrderPayment',
-        referenceId: po.id,
-        description: `Paid supplier invoice for PO #${po.poNumber}`,
-        debits: [{ code: '5400', amount: poAmount }],
-        credits: [{ code: '1000', amount: poAmount }],
-      });
-
-      return { poId: po.id };
-    });
-  }
 }

@@ -49,13 +49,5 @@ export class AccountsController {
     }
   }
 
-  @Post('pay-purchase-order')
-  async payPurchaseOrder(@Req() req: any, @Body() body: { poId: string }) {
-    try {
-      const data = await this.accountsService.payPurchaseOrder(req.user?.workspaceId || 'grandsquare-mall', body.poId);
-      return ResponseUtil.success(data, 'Purchase order paid successfully');
-    } catch (err: any) {
-      return ResponseUtil.success({ poId: body.poId }, 'PO paid');
-    }
-  }
+
 }

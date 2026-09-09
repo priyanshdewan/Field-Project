@@ -55,7 +55,6 @@ import {
   Moon,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import { stopImpersonatingServer } from "@/lib/server-auth";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { MALL, ANOMALIES, LIVE_FEED } from "@/lib/mock-data";
@@ -64,7 +63,6 @@ import { useBusinessData } from "@/lib/business-context";
 import {
   Product360Drawer,
   Customer360Drawer,
-  Supplier360Drawer,
   RecommendationInvestigateDrawer,
 } from "@/components/details-drawers";
 
@@ -102,7 +100,6 @@ const NAV: NavSection[] = [
     section: "Portals",
     items: [
       { to: "/customer-portal", label: "Customer Portal", icon: ShoppingBagIcon },
-      { to: "/supplier-portal", label: "Supplier Portal", icon: Truck },
     ],
   },
   {
@@ -130,8 +127,6 @@ const NAV: NavSection[] = [
       { to: "/products", label: "Products", icon: Package },
       { to: "/inventory", label: "Inventory", icon: Warehouse },
       { to: "/expiry", label: "Expiry Intelligence", icon: Timer },
-      { to: "/suppliers", label: "Suppliers", icon: Truck },
-      { to: "/purchase-orders", label: "Purchase Orders", icon: ClipboardList },
       { to: "/logistics", label: "Logistics & Dispatch", icon: Truck },
     ],
   },
@@ -176,18 +171,14 @@ function AppShell() {
   const {
     activeProductId,
     activeCustomerId,
-    activeSupplierId,
     activeRecId,
     openProduct360,
     openCustomer360,
-    openSupplier360,
     openRecommendation,
     products,
     customers,
-    suppliers,
     activeDate,
     transactions,
-    purchaseOrders,
     expenses,
     investments,
     logistics,
@@ -322,9 +313,7 @@ function AppShell() {
     searchQuery,
     products,
     customers,
-    suppliers,
     transactions,
-    purchaseOrders,
     expenses,
     investments,
     logistics,
@@ -342,10 +331,7 @@ function AppShell() {
 
     // Role-based route guard
     if (user) {
-      if (user.email === "khade8915@gmail.com" && pathname !== "/system-admin") {
-        navigate({ to: "/system-admin", replace: true });
-        return;
-      }
+      
 
       const restrictedPaths = ["/settings", "/tax", "/data-import", "/income", "/departments"];
       if (user.role === "manager" && restrictedPaths.some((p) => pathname.startsWith(p))) {
@@ -378,37 +364,7 @@ function AppShell() {
     }),
   })).filter((section) => section.items.length > 0);
 
-  if (user?.isSystemAdmin && user?.email === "khade8915@gmail.com") {
-    // Super Admin should ONLY see System Admin Portal tab
-    filteredNAV = [
-      {
-        section: "System",
-        items: [
-          { to: "/system-admin", label: "System Admin Portal", icon: ShieldAlert },
-        ],
-      },
-    ];
-  }
-
-  const currentLabel =
-    filteredNAV.flatMap((s) => s.items).find((i) => i.to === pathname)?.label ?? "Overview";
-
-  return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
-      {user?.isImpersonating && (
-        <div className="flex items-center justify-between bg-warning text-warning-foreground px-4 py-2 text-sm font-semibold select-none z-50">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-4.5 w-4.5 text-warning-foreground animate-pulse" />
-            <span>Impersonation Active: Viewing workspace as Owner ({user.name} - {user.email})</span>
-          </div>
-          <Button 
-            size="sm" 
-            variant="destructive" 
-            onClick={async () => {
-              await stopImpersonatingServer();
-              toast.success("Returned to System Admin session.");
-              window.location.reload();
-            }}
+  
           >
             Stop Impersonation
           </Button>
@@ -598,9 +554,9 @@ function AppShell() {
 
                   {searchResults.products.length === 0 &&
                   searchResults.customers.length === 0 &&
-                  searchResults.suppliers.length === 0 &&
+                  
                   searchResults.transactions.length === 0 &&
-                  searchResults.purchaseOrders.length === 0 &&
+                  
                   searchResults.expenses.length === 0 &&
                   searchResults.investments.length === 0 &&
                   searchResults.logistics.length === 0 ? (
@@ -661,33 +617,6 @@ function AppShell() {
                         </div>
                       )}
 
-                      {/* Suppliers Group */}
-                      {searchResults.suppliers.length > 0 && (
-                        <div>
-                          <p className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                            Suppliers
-                          </p>
-                          <div className="space-y-0.5 mt-1">
-                            {searchResults.suppliers.map((s) => (
-                              <button
-                                key={s.id}
-                                onClick={() => {
-                                  openSupplier360(s.id);
-                                  setSearchQuery("");
-                                  setSearchOpen(false);
-                                }}
-                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface flex justify-between items-center"
-                              >
-                                <span className="font-medium text-foreground">{s.name}</span>
-                                <span className="text-[10px] text-muted-foreground">
-                                  {s.category}
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
                       {/* Transactions Group */}
                       {searchResults.transactions.length > 0 && (
                         <div>
@@ -710,35 +639,6 @@ function AppShell() {
                                 </span>
                                 <span className="text-[10px] text-muted-foreground">
                                   ₹{t.total}
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Purchase Orders Group */}
-                      {searchResults.purchaseOrders.length > 0 && (
-                        <div>
-                          <p className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                            Purchase Orders
-                          </p>
-                          <div className="space-y-0.5 mt-1">
-                            {searchResults.purchaseOrders.map((po) => (
-                              <button
-                                key={po.id}
-                                onClick={() => {
-                                  navigate({ to: "/purchase-orders" });
-                                  setSearchQuery("");
-                                  setSearchOpen(false);
-                                }}
-                                className="w-full text-left px-2 py-1.5 rounded hover:bg-surface flex justify-between items-center"
-                              >
-                                <span className="font-medium text-foreground">
-                                  PO {po.id} ({po.productName})
-                                </span>
-                                <span className="text-[10px] text-muted-foreground">
-                                  {po.status}
                                 </span>
                               </button>
                             ))}
@@ -1107,11 +1007,7 @@ function AppShell() {
           open={!!activeCustomerId}
           onOpenChange={(open) => !open && openCustomer360(null)}
         />
-        <Supplier360Drawer
-          supplierId={activeSupplierId}
-          open={!!activeSupplierId}
-          onOpenChange={(open) => !open && openSupplier360(null)}
-        />
+        
         <RecommendationInvestigateDrawer
           recId={activeRecId}
           open={!!activeRecId}
@@ -1122,3 +1018,4 @@ function AppShell() {
   </div>
   );
 }
+

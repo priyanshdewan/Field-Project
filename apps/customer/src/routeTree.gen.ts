@@ -19,14 +19,12 @@ import { Route as AppTransactionsRouteImport } from './routes/_app.transactions'
 import { Route as AppTime_machineRouteImport } from './routes/_app.time_machine'
 import { Route as AppTimeMachineRouteImport } from './routes/_app.time-machine'
 import { Route as AppTaxRouteImport } from './routes/_app.tax'
-import { Route as AppSystemAdminRouteImport } from './routes/_app.system-admin'
-import { Route as AppSuppliersRouteImport } from './routes/_app.suppliers'
-import { Route as AppSupplierPortalRouteImport } from './routes/_app.supplier-portal'
+
 import { Route as AppStaffRouteImport } from './routes/_app.staff'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppSalesRouteImport } from './routes/_app.sales'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
-import { Route as AppPurchaseOrdersRouteImport } from './routes/_app.purchase-orders'
+
 import { Route as AppProductsRouteImport } from './routes/_app.products'
 import { Route as AppMarketIntelligenceRouteImport } from './routes/_app.market-intelligence'
 import { Route as AppLogisticsRouteImport } from './routes/_app.logistics'
@@ -99,21 +97,7 @@ const AppTaxRoute = AppTaxRouteImport.update({
   path: '/tax',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSystemAdminRoute = AppSystemAdminRouteImport.update({
-  id: '/system-admin',
-  path: '/system-admin',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSuppliersRoute = AppSuppliersRouteImport.update({
-  id: '/suppliers',
-  path: '/suppliers',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSupplierPortalRoute = AppSupplierPortalRouteImport.update({
-  id: '/supplier-portal',
-  path: '/supplier-portal',
-  getParentRoute: () => AppRoute,
-} as any)
+
 const AppStaffRoute = AppStaffRouteImport.update({
   id: '/staff',
   path: '/staff',
@@ -134,11 +118,7 @@ const AppReportsRoute = AppReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AppRoute,
 } as any)
-const AppPurchaseOrdersRoute = AppPurchaseOrdersRouteImport.update({
-  id: '/purchase-orders',
-  path: '/purchase-orders',
-  getParentRoute: () => AppRoute,
-} as any)
+
 const AppProductsRoute = AppProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -277,14 +257,12 @@ export interface FileRoutesByFullPath {
   '/logistics': typeof AppLogisticsRoute
   '/market-intelligence': typeof AppMarketIntelligenceRoute
   '/products': typeof AppProductsRoute
-  '/purchase-orders': typeof AppPurchaseOrdersRoute
+
   '/reports': typeof AppReportsRoute
   '/sales': typeof AppSalesRoute
   '/settings': typeof AppSettingsRoute
   '/staff': typeof AppStaffRoute
-  '/supplier-portal': typeof AppSupplierPortalRoute
-  '/suppliers': typeof AppSuppliersRoute
-  '/system-admin': typeof AppSystemAdminRoute
+
   '/tax': typeof AppTaxRoute
   '/time-machine': typeof AppTimeMachineRoute
   '/time_machine': typeof AppTime_machineRoute
@@ -318,14 +296,12 @@ export interface FileRoutesByTo {
   '/logistics': typeof AppLogisticsRoute
   '/market-intelligence': typeof AppMarketIntelligenceRoute
   '/products': typeof AppProductsRoute
-  '/purchase-orders': typeof AppPurchaseOrdersRoute
+
   '/reports': typeof AppReportsRoute
   '/sales': typeof AppSalesRoute
   '/settings': typeof AppSettingsRoute
   '/staff': typeof AppStaffRoute
-  '/supplier-portal': typeof AppSupplierPortalRoute
-  '/suppliers': typeof AppSuppliersRoute
-  '/system-admin': typeof AppSystemAdminRoute
+
   '/tax': typeof AppTaxRoute
   '/time-machine': typeof AppTimeMachineRoute
   '/time_machine': typeof AppTime_machineRoute
@@ -361,14 +337,12 @@ export interface FileRoutesById {
   '/_app/logistics': typeof AppLogisticsRoute
   '/_app/market-intelligence': typeof AppMarketIntelligenceRoute
   '/_app/products': typeof AppProductsRoute
-  '/_app/purchase-orders': typeof AppPurchaseOrdersRoute
+
   '/_app/reports': typeof AppReportsRoute
   '/_app/sales': typeof AppSalesRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/staff': typeof AppStaffRoute
-  '/_app/supplier-portal': typeof AppSupplierPortalRoute
-  '/_app/suppliers': typeof AppSuppliersRoute
-  '/_app/system-admin': typeof AppSystemAdminRoute
+
   '/_app/tax': typeof AppTaxRoute
   '/_app/time-machine': typeof AppTimeMachineRoute
   '/_app/time_machine': typeof AppTime_machineRoute
@@ -404,14 +378,12 @@ export interface FileRouteTypes {
     | '/logistics'
     | '/market-intelligence'
     | '/products'
-    | '/purchase-orders'
+
     | '/reports'
     | '/sales'
     | '/settings'
     | '/staff'
-    | '/supplier-portal'
-    | '/suppliers'
-    | '/system-admin'
+
     | '/tax'
     | '/time-machine'
     | '/time_machine'
@@ -445,14 +417,12 @@ export interface FileRouteTypes {
     | '/logistics'
     | '/market-intelligence'
     | '/products'
-    | '/purchase-orders'
+
     | '/reports'
     | '/sales'
     | '/settings'
     | '/staff'
-    | '/supplier-portal'
-    | '/suppliers'
-    | '/system-admin'
+
     | '/tax'
     | '/time-machine'
     | '/time_machine'
@@ -487,14 +457,12 @@ export interface FileRouteTypes {
     | '/_app/logistics'
     | '/_app/market-intelligence'
     | '/_app/products'
-    | '/_app/purchase-orders'
+
     | '/_app/reports'
     | '/_app/sales'
     | '/_app/settings'
     | '/_app/staff'
-    | '/_app/supplier-portal'
-    | '/_app/suppliers'
-    | '/_app/system-admin'
+
     | '/_app/tax'
     | '/_app/time-machine'
     | '/_app/time_machine'
@@ -582,296 +550,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTaxRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/system-admin': {
-      id: '/_app/system-admin'
-      path: '/system-admin'
-      fullPath: '/system-admin'
-      preLoaderRoute: typeof AppSystemAdminRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/suppliers': {
-      id: '/_app/suppliers'
-      path: '/suppliers'
-      fullPath: '/suppliers'
-      preLoaderRoute: typeof AppSuppliersRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/supplier-portal': {
-      id: '/_app/supplier-portal'
-      path: '/supplier-portal'
-      fullPath: '/supplier-portal'
-      preLoaderRoute: typeof AppSupplierPortalRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/staff': {
-      id: '/_app/staff'
-      path: '/staff'
-      fullPath: '/staff'
-      preLoaderRoute: typeof AppStaffRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/settings': {
-      id: '/_app/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/sales': {
-      id: '/_app/sales'
-      path: '/sales'
-      fullPath: '/sales'
-      preLoaderRoute: typeof AppSalesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/reports': {
-      id: '/_app/reports'
-      path: '/reports'
-      fullPath: '/reports'
-      preLoaderRoute: typeof AppReportsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/purchase-orders': {
-      id: '/_app/purchase-orders'
-      path: '/purchase-orders'
-      fullPath: '/purchase-orders'
-      preLoaderRoute: typeof AppPurchaseOrdersRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/products': {
-      id: '/_app/products'
-      path: '/products'
-      fullPath: '/products'
-      preLoaderRoute: typeof AppProductsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/market-intelligence': {
-      id: '/_app/market-intelligence'
-      path: '/market-intelligence'
-      fullPath: '/market-intelligence'
-      preLoaderRoute: typeof AppMarketIntelligenceRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/logistics': {
-      id: '/_app/logistics'
-      path: '/logistics'
-      fullPath: '/logistics'
-      preLoaderRoute: typeof AppLogisticsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/live_ops': {
-      id: '/_app/live_ops'
-      path: '/live_ops'
-      fullPath: '/live_ops'
-      preLoaderRoute: typeof AppLive_opsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/live-ops': {
-      id: '/_app/live-ops'
-      path: '/live-ops'
-      fullPath: '/live-ops'
-      preLoaderRoute: typeof AppLiveOpsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/inventory': {
-      id: '/_app/inventory'
-      path: '/inventory'
-      fullPath: '/inventory'
-      preLoaderRoute: typeof AppInventoryRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/income': {
-      id: '/_app/income'
-      path: '/income'
-      fullPath: '/income'
-      preLoaderRoute: typeof AppIncomeRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/forecasting': {
-      id: '/_app/forecasting'
-      path: '/forecasting'
-      fullPath: '/forecasting'
-      preLoaderRoute: typeof AppForecastingRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/expiry': {
-      id: '/_app/expiry'
-      path: '/expiry'
-      fullPath: '/expiry'
-      preLoaderRoute: typeof AppExpiryRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/expenses': {
-      id: '/_app/expenses'
-      path: '/expenses'
-      fullPath: '/expenses'
-      preLoaderRoute: typeof AppExpensesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/departments': {
-      id: '/_app/departments'
-      path: '/departments'
-      fullPath: '/departments'
-      preLoaderRoute: typeof AppDepartmentsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/data-import': {
-      id: '/_app/data-import'
-      path: '/data-import'
-      fullPath: '/data-import'
-      preLoaderRoute: typeof AppDataImportRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/customers': {
-      id: '/_app/customers'
-      path: '/customers'
-      fullPath: '/customers'
-      preLoaderRoute: typeof AppCustomersRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/customer-portal': {
-      id: '/_app/customer-portal'
-      path: '/customer-portal'
-      fullPath: '/customer-portal'
-      preLoaderRoute: typeof AppCustomerPortalRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/command_center': {
-      id: '/_app/command_center'
-      path: '/command_center'
-      fullPath: '/command_center'
-      preLoaderRoute: typeof AppCommand_centerRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/command-center': {
-      id: '/_app/command-center'
-      path: '/command-center'
-      fullPath: '/command-center'
-      preLoaderRoute: typeof AppCommandCenterRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/billing': {
-      id: '/_app/billing'
-      path: '/billing'
-      fullPath: '/billing'
-      preLoaderRoute: typeof AppBillingRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/anomalies': {
-      id: '/_app/anomalies'
-      path: '/anomalies'
-      fullPath: '/anomalies'
-      preLoaderRoute: typeof AppAnomaliesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/analytics': {
-      id: '/_app/analytics'
-      path: '/analytics'
-      fullPath: '/analytics'
-      preLoaderRoute: typeof AppAnalyticsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/ai_decisions': {
-      id: '/_app/ai_decisions'
-      path: '/ai_decisions'
-      fullPath: '/ai_decisions'
-      preLoaderRoute: typeof AppAi_decisionsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/ai-decisions': {
-      id: '/_app/ai-decisions'
-      path: '/ai-decisions'
-      fullPath: '/ai-decisions'
-      preLoaderRoute: typeof AppAiDecisionsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/accounts': {
-      id: '/_app/accounts'
-      path: '/accounts'
-      fullPath: '/accounts'
-      preLoaderRoute: typeof AppAccountsRouteImport
-      parentRoute: typeof AppRoute
-    }
-  }
-}
-
-interface AppRouteChildren {
-  AppAccountsRoute: typeof AppAccountsRoute
-  AppAiDecisionsRoute: typeof AppAiDecisionsRoute
-  AppAi_decisionsRoute: typeof AppAi_decisionsRoute
-  AppAnalyticsRoute: typeof AppAnalyticsRoute
-  AppAnomaliesRoute: typeof AppAnomaliesRoute
-  AppBillingRoute: typeof AppBillingRoute
-  AppCommandCenterRoute: typeof AppCommandCenterRoute
-  AppCommand_centerRoute: typeof AppCommand_centerRoute
-  AppCustomerPortalRoute: typeof AppCustomerPortalRoute
-  AppCustomersRoute: typeof AppCustomersRoute
-  AppDataImportRoute: typeof AppDataImportRoute
-  AppDepartmentsRoute: typeof AppDepartmentsRoute
-  AppExpensesRoute: typeof AppExpensesRoute
-  AppExpiryRoute: typeof AppExpiryRoute
-  AppForecastingRoute: typeof AppForecastingRoute
-  AppIncomeRoute: typeof AppIncomeRoute
-  AppInventoryRoute: typeof AppInventoryRoute
-  AppLiveOpsRoute: typeof AppLiveOpsRoute
-  AppLive_opsRoute: typeof AppLive_opsRoute
-  AppLogisticsRoute: typeof AppLogisticsRoute
-  AppMarketIntelligenceRoute: typeof AppMarketIntelligenceRoute
-  AppProductsRoute: typeof AppProductsRoute
-  AppPurchaseOrdersRoute: typeof AppPurchaseOrdersRoute
-  AppReportsRoute: typeof AppReportsRoute
-  AppSalesRoute: typeof AppSalesRoute
-  AppSettingsRoute: typeof AppSettingsRoute
-  AppStaffRoute: typeof AppStaffRoute
-  AppSupplierPortalRoute: typeof AppSupplierPortalRoute
-  AppSuppliersRoute: typeof AppSuppliersRoute
-  AppSystemAdminRoute: typeof AppSystemAdminRoute
-  AppTaxRoute: typeof AppTaxRoute
-  AppTimeMachineRoute: typeof AppTimeMachineRoute
-  AppTime_machineRoute: typeof AppTime_machineRoute
-  AppTransactionsRoute: typeof AppTransactionsRoute
-  AppUtilitiesRoute: typeof AppUtilitiesRoute
-}
-
-const AppRouteChildren: AppRouteChildren = {
-  AppAccountsRoute: AppAccountsRoute,
-  AppAiDecisionsRoute: AppAiDecisionsRoute,
-  AppAi_decisionsRoute: AppAi_decisionsRoute,
-  AppAnalyticsRoute: AppAnalyticsRoute,
-  AppAnomaliesRoute: AppAnomaliesRoute,
-  AppBillingRoute: AppBillingRoute,
-  AppCommandCenterRoute: AppCommandCenterRoute,
-  AppCommand_centerRoute: AppCommand_centerRoute,
-  AppCustomerPortalRoute: AppCustomerPortalRoute,
-  AppCustomersRoute: AppCustomersRoute,
-  AppDataImportRoute: AppDataImportRoute,
-  AppDepartmentsRoute: AppDepartmentsRoute,
-  AppExpensesRoute: AppExpensesRoute,
-  AppExpiryRoute: AppExpiryRoute,
-  AppForecastingRoute: AppForecastingRoute,
-  AppIncomeRoute: AppIncomeRoute,
-  AppInventoryRoute: AppInventoryRoute,
-  AppLiveOpsRoute: AppLiveOpsRoute,
-  AppLive_opsRoute: AppLive_opsRoute,
-  AppLogisticsRoute: AppLogisticsRoute,
-  AppMarketIntelligenceRoute: AppMarketIntelligenceRoute,
-  AppProductsRoute: AppProductsRoute,
-  AppPurchaseOrdersRoute: AppPurchaseOrdersRoute,
-  AppReportsRoute: AppReportsRoute,
-  AppSalesRoute: AppSalesRoute,
-  AppSettingsRoute: AppSettingsRoute,
-  AppStaffRoute: AppStaffRoute,
-  AppSupplierPortalRoute: AppSupplierPortalRoute,
-  AppSuppliersRoute: AppSuppliersRoute,
-  AppSystemAdminRoute: AppSystemAdminRoute,
-  AppTaxRoute: AppTaxRoute,
-  AppTimeMachineRoute: AppTimeMachineRoute,
-  AppTime_machineRoute: AppTime_machineRoute,
-  AppTransactionsRoute: AppTransactionsRoute,
-  AppUtilitiesRoute: AppUtilitiesRoute,
-}
-
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,

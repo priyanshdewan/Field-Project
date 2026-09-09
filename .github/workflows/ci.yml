@@ -30,14 +30,8 @@ jobs:
       - name: ⚙️ Build NestJS Backend Service
         run: npm run build -w services/backend
 
-      - name: 🛡️ Build Super Admin Portal
-        run: npm run build -w apps/admin
-
       - name: 👑 Build Business Owner Portal
         run: npm run build -w apps/owner
-
-      - name: 🚚 Build Supplier Portal
-        run: npm run build -w apps/supplier
 
       - name: 🛍️ Build Customer Portal
         run: npm run build -w apps/customer
@@ -46,4 +40,4 @@ jobs:
         run: npm run build -w apps/web
 
       - name: ✅ All Build Checks Passed
-        run: echo "All 5 portals and NestJS backend compiled cleanly with 0 errors!"
+        run: echo "All 3 portals and NestJS backend compiled cleanly with 0 errors!"

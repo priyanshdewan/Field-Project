@@ -50,7 +50,6 @@ import { useBusinessData } from "@/lib/business-context";
 import {
   Product360Drawer,
   Customer360Drawer,
-  Supplier360Drawer,
   RecommendationInvestigateDrawer,
 } from "@/components/details-drawers";
 
@@ -103,11 +102,9 @@ function AppShell() {
   const {
     activeProductId,
     activeCustomerId,
-    activeSupplierId,
     activeRecId,
     closeProduct360,
     closeCustomer360,
-    closeSupplier360,
     closeRecommendation,
   } = useBusinessData();
 
@@ -283,7 +280,6 @@ function AppShell() {
       {/* 360 Drawers */}
       {activeProductId && <Product360Drawer productId={activeProductId} onClose={closeProduct360} />}
       {activeCustomerId && <Customer360Drawer customerId={activeCustomerId} onClose={closeCustomer360} />}
-      {activeSupplierId && <Supplier360Drawer supplierId={activeSupplierId} onClose={closeSupplier360} />}
       {activeRecId && (
         <RecommendationInvestigateDrawer recId={activeRecId} onClose={closeRecommendation} />
       )}
