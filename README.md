@@ -3,7 +3,7 @@
 # 🚀 Bizora AI (OmniMind)
 ### **Enterprise AI Business Operating System & Decision Intelligence**
 
-[![CI Build Verification](https://github.com/omkhade75/fieldproject/actions/workflows/ci.yml/badge.svg)](https://github.com/omkhade75/fieldproject/actions/workflows/ci.yml)
+[![CI Build Verification](https://github.com/priyanshdewan/Field-Project/actions/workflows/ci.yml/badge.svg)](https://github.com/priyanshdewan/Field-Project/actions/workflows/ci.yml)
 ![Node.js Version](https://img.shields.io/badge/Node.js-v20-brightgreen?style=flat&logo=node.js)
 ![NestJS](https://img.shields.io/badge/NestJS-v10-red?style=flat&logo=nestjs)
 ![TypeScript](https://img.shields.io/badge/TypeScript-96%25-blue?style=flat&logo=typescript)
@@ -11,7 +11,7 @@
 
 <br />
 
-[**🚀 Unified Launchpad Hub**](https://omkhade75.github.io/fieldproject/) &nbsp;•&nbsp;
+[**🚀 Unified Launchpad Hub**](https://priyanshdewan.github.io/Field-Project/) &nbsp;•&nbsp;
 [**👑 Owner Portal**](https://bizora-owner.onrender.com) &nbsp;•&nbsp;
 [**🛍️ Customer CRM**](https://bizora-customer.onrender.com) &nbsp;•&nbsp;
 [**🌐 Web Marketing**](https://bizora-web.onrender.com) &nbsp;•&nbsp;
@@ -28,13 +28,13 @@
 ## 🌐 Unified Launchpad & Live Deployed Portals
 
 You can access all deployed portals from a single unified launchpad link:
-👉 **[https://omkhade75.github.io/fieldproject/](https://omkhade75.github.io/fieldproject/)** (Single Master Directory)
+👉 **[https://priyanshdewan.github.io/Field-Project/](https://priyanshdewan.github.io/Field-Project/)** (Single Master Directory)
 
 All static frontends communicate directly via REST API `fetch()` to the centralized NestJS backend hosted on Render:
 
 | Portal Role | Live Web URL | Key Capabilities & Features |
 | :--- | :--- | :--- |
-| **🚀 Master Directory Hub** | [https://omkhade75.github.io/fieldproject/](https://omkhade75.github.io/fieldproject/) | Central launchpad with 1-click access to all portals, demo credentials & wake-up status checks. |
+| **🚀 Master Directory Hub** | [https://priyanshdewan.github.io/Field-Project/](https://priyanshdewan.github.io/Field-Project/) | Central launchpad with 1-click access to all portals, demo credentials & wake-up status checks. |
 | **👑 Business Owner** | [https://bizora-owner.onrender.com](https://bizora-owner.onrender.com) | Executive P&L dashboard, double-entry GL ledger, barcode scanner product entry, inventory forecasting, daily sales & AI decisions. |
 | **🛍️ Customer Portal** | [https://bizora-customer.onrender.com](https://bizora-customer.onrender.com) | Customer CRM portal, digital POS receipt history, loyalty rewards wallet, order tracking, product reviews. |
 | **🌐 Marketing Portal** | [https://bizora-web.onrender.com](https://bizora-web.onrender.com) | Main landing page, platform overview, enterprise pricing, module feature tours, store onboarding. |

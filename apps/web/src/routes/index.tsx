@@ -289,7 +289,7 @@ function RichLandingPage() {
                 <span className="text-[10px] text-muted-foreground hidden sm:inline">• Direct 1-Click Access</span>
               </div>
               <a
-                href="https://omkhade75.github.io/fieldproject/"
+                href="https://priyanshdewan.github.io/Field-Project/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-1"

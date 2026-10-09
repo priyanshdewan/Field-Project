@@ -129,7 +129,7 @@ export function PortalSwitcher({ currentPortal = "owner", className }: PortalSwi
 
           <div className="mt-2 pt-2 border-t border-hairline text-center">
             <a
-              href="https://omkhade75.github.io/fieldproject/"
+              href="https://priyanshdewan.github.io/Field-Project/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[10px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1 font-medium"
