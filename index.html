@@ -304,7 +304,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
     .tag {
       font-size: 11px;
@@ -319,9 +319,9 @@
     .url-box {
       background: rgba(15, 23, 42, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 10px 14px;
-      margin-bottom: 12px;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -337,14 +337,14 @@
     }
 
     .url-icon {
-      font-size: 13px;
-      opacity: 0.8;
+      font-size: 14px;
+      opacity: 0.85;
       flex-shrink: 0;
     }
 
     .url-link {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
+      font-size: 12.5px;
       color: #60a5fa;
       text-decoration: underline;
       text-underline-offset: 3px;
@@ -359,38 +359,20 @@
       color: #93c5fd;
     }
 
-    .cred-box {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: 10px;
-      padding: 10px 14px;
-      margin-bottom: 20px;
-      font-size: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      color: #cbd5e1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .cred-info {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .cred-copy-btn {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       color: #cbd5e1;
       cursor: pointer;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 6px;
+      padding: 5px 12px;
+      border-radius: 7px;
       transition: all 0.2s;
       flex-shrink: 0;
     }
-    .cred-copy-btn:hover {
-      background: rgba(255, 255, 255, 0.16);
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
       color: #fff;
     }
 
@@ -577,11 +559,7 @@
             <span class="url-icon">🔗</span>
             <a href="https://bizora-owner.onrender.com" target="_blank" rel="noopener noreferrer" class="url-link">https://bizora-owner.onrender.com</a>
           </div>
-          <button class="cred-copy-btn" onclick="copyText('https://bizora-owner.onrender.com', 'Owner URL copied!')" title="Copy URL">Copy</button>
-        </div>
-        <div class="cred-box">
-          <div class="cred-info">🔑 Login: <strong>owner@bizora.com</strong></div>
-          <button class="cred-copy-btn" onclick="copyText('owner@bizora.com', 'Owner email copied!')">Copy</button>
+          <button class="copy-btn" onclick="copyText('https://bizora-owner.onrender.com', 'Owner URL copied!')" title="Copy URL">Copy</button>
         </div>
         <a href="https://bizora-owner.onrender.com" target="_blank" rel="noopener noreferrer" class="btn-launch">
           Launch Owner Portal ➔
@@ -612,11 +590,7 @@
             <span class="url-icon">🔗</span>
             <a href="https://bizora-customer.onrender.com" target="_blank" rel="noopener noreferrer" class="url-link">https://bizora-customer.onrender.com</a>
           </div>
-          <button class="cred-copy-btn" onclick="copyText('https://bizora-customer.onrender.com', 'Customer URL copied!')" title="Copy URL">Copy</button>
-        </div>
-        <div class="cred-box">
-          <div class="cred-info">🔑 <strong>customer@gmail.com</strong> / <strong>123456789</strong></div>
-          <button class="cred-copy-btn" onclick="copyText('customer@gmail.com', 'Customer email copied!')">Copy</button>
+          <button class="copy-btn" onclick="copyText('https://bizora-customer.onrender.com', 'Customer URL copied!')" title="Copy URL">Copy</button>
         </div>
         <a href="https://bizora-customer.onrender.com" target="_blank" rel="noopener noreferrer" class="btn-launch">
           Launch Customer Portal ➔
@@ -647,11 +621,7 @@
             <span class="url-icon">🔗</span>
             <a href="https://bizora-web.onrender.com" target="_blank" rel="noopener noreferrer" class="url-link">https://bizora-web.onrender.com</a>
           </div>
-          <button class="cred-copy-btn" onclick="copyText('https://bizora-web.onrender.com', 'Marketing Web URL copied!')" title="Copy URL">Copy</button>
-        </div>
-        <div class="cred-box">
-          <div class="cred-info">🔓 Open Public Access</div>
-          <button class="cred-copy-btn" onclick="copyText('https://bizora-web.onrender.com', 'Web URL copied!')">Copy</button>
+          <button class="copy-btn" onclick="copyText('https://bizora-web.onrender.com', 'Marketing Web URL copied!')" title="Copy URL">Copy</button>
         </div>
         <a href="https://bizora-web.onrender.com" target="_blank" rel="noopener noreferrer" class="btn-launch">
           Launch Marketing Web ➔
