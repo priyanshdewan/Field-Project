@@ -8,7 +8,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><polygon points='12 2 2 7 12 12 22 7 12 2'/><polyline points='2 17 12 22 22 17'/><polyline points='2 12 12 17 22 12'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -23,8 +23,6 @@
       --accent-customer-bg: rgba(16, 185, 129, 0.12);
       --accent-web: #6366f1;
       --accent-web-bg: rgba(99, 102, 241, 0.12);
-      --accent-api: #ec4899;
-      --accent-api-bg: rgba(236, 72, 153, 0.12);
     }
 
     * {
@@ -199,6 +197,11 @@
       gap: 24px;
       margin-bottom: 40px;
     }
+    @media (min-width: 1024px) {
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
 
     .portal-card {
       background: var(--card-bg);
@@ -233,7 +236,6 @@
     .card-owner { --top-bar: #f59e0b; }
     .card-customer { --top-bar: #10b981; }
     .card-web { --top-bar: #6366f1; }
-    .card-api { --top-bar: #ec4899; }
 
     .card-header {
       display: flex;
@@ -254,7 +256,6 @@
     .card-owner .icon-box { background: var(--accent-owner-bg); color: var(--accent-owner); border: 1px solid rgba(245, 158, 11, 0.3); }
     .card-customer .icon-box { background: var(--accent-customer-bg); color: var(--accent-customer); border: 1px solid rgba(16, 185, 129, 0.3); }
     .card-web .icon-box { background: var(--accent-web-bg); color: var(--accent-web); border: 1px solid rgba(99, 102, 241, 0.3); }
-    .card-api .icon-box { background: var(--accent-api-bg); color: var(--accent-api); border: 1px solid rgba(236, 72, 153, 0.3); }
 
     .ping-badge {
       display: inline-flex;
@@ -303,7 +304,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .tag {
       font-size: 11px;
@@ -313,6 +314,49 @@
       color: #d1d5db;
       font-weight: 500;
       border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .url-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .url-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .url-icon {
+      font-size: 13px;
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
+
+    .url-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #60a5fa;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .url-link:hover {
+      color: #93c5fd;
     }
 
     .cred-box {
@@ -334,17 +378,19 @@
       white-space: nowrap;
     }
     .cred-copy-btn {
-      background: none;
-      border: none;
-      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
       cursor: pointer;
       font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 4px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
       transition: all 0.2s;
+      flex-shrink: 0;
     }
     .cred-copy-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.16);
       color: #fff;
     }
 
@@ -389,15 +435,6 @@
     }
     .card-web .btn-launch:hover {
       box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
-      filter: brightness(1.08);
-      transform: translateY(-1px);
-    }
-
-    .card-api .btn-launch {
-      background: linear-gradient(135deg, #db2777, #ec4899);
-    }
-    .card-api .btn-launch:hover {
-      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.35);
       filter: brightness(1.08);
       transform: translateY(-1px);
     }
@@ -535,6 +572,13 @@
           <span class="tag">GL Double-Entry</span>
           <span class="tag">AI Insights</span>
         </div>
+        <div class="url-box">
+          <div class="url-content">
+            <span class="url-icon">🔗</span>
+            <a href="https://bizora-owner.onrender.com" target="_blank" rel="noopener noreferrer" class="url-link">https://bizora-owner.onrender.com</a>
+          </div>
+          <button class="cred-copy-btn" onclick="copyText('https://bizora-owner.onrender.com', 'Owner URL copied!')" title="Copy URL">Copy</button>
+        </div>
         <div class="cred-box">
           <div class="cred-info">🔑 Login: <strong>owner@bizora.com</strong></div>
           <button class="cred-copy-btn" onclick="copyText('owner@bizora.com', 'Owner email copied!')">Copy</button>
@@ -562,6 +606,13 @@
           <span class="tag">Digital Receipts</span>
           <span class="tag">Loyalty Points</span>
           <span class="tag">Order Tracking</span>
+        </div>
+        <div class="url-box">
+          <div class="url-content">
+            <span class="url-icon">🔗</span>
+            <a href="https://bizora-customer.onrender.com" target="_blank" rel="noopener noreferrer" class="url-link">https://bizora-customer.onrender.com</a>
+          </div>
+          <button class="cred-copy-btn" onclick="copyText('https://bizora-customer.onrender.com', 'Customer URL copied!')" title="Copy URL">Copy</button>
         </div>
         <div class="cred-box">
           <div class="cred-info">🔑 <strong>customer@gmail.com</strong> / <strong>123456789</strong></div>
@@ -591,40 +642,19 @@
           <span class="tag">Store Onboarding</span>
           <span class="tag">Feature Tour</span>
         </div>
+        <div class="url-box">
+          <div class="url-content">
+            <span class="url-icon">🔗</span>
+            <a href="https://bizora-web.onrender.com" target="_blank" rel="noopener noreferrer" class="url-link">https://bizora-web.onrender.com</a>
+          </div>
+          <button class="cred-copy-btn" onclick="copyText('https://bizora-web.onrender.com', 'Marketing Web URL copied!')" title="Copy URL">Copy</button>
+        </div>
         <div class="cred-box">
           <div class="cred-info">🔓 Open Public Access</div>
-          <button class="cred-copy-btn" onclick="copyText('https://bizora-web.onrender.com', 'Web URL copied!')">Copy URL</button>
+          <button class="cred-copy-btn" onclick="copyText('https://bizora-web.onrender.com', 'Web URL copied!')">Copy</button>
         </div>
         <a href="https://bizora-web.onrender.com" target="_blank" rel="noopener noreferrer" class="btn-launch">
           Launch Marketing Web ➔
-        </a>
-      </div>
-
-      <!-- 4. CENTRAL BACKEND API -->
-      <div class="portal-card card-api">
-        <div class="card-header">
-          <div class="icon-box">⚙️</div>
-          <div class="ping-badge" id="status-api">
-            <span class="dot"></span>
-            <span class="text">Checking...</span>
-          </div>
-        </div>
-        <h2 class="card-title">Central Backend API</h2>
-        <p class="card-desc">
-          Centralized NestJS REST microservice providing multi-tenant database connectivity, authentication, POS transaction processing, Twilio WhatsApp automation, and Gemini AI integration.
-        </p>
-        <div class="tags">
-          <span class="tag">NestJS REST API</span>
-          <span class="tag">Twilio WhatsApp</span>
-          <span class="tag">Gemini AI</span>
-          <span class="tag">Supabase Auth</span>
-        </div>
-        <div class="cred-box">
-          <div class="cred-info">📡 Endpoint: <strong>/api</strong></div>
-          <button class="cred-copy-btn" onclick="copyText('https://bizora-backend-gtoe.onrender.com', 'Backend URL copied!')">Copy</button>
-        </div>
-        <a href="https://bizora-backend-gtoe.onrender.com" target="_blank" rel="noopener noreferrer" class="btn-launch">
-          View Backend API ➔
         </a>
       </div>
     </main>
@@ -634,10 +664,9 @@
         Direct Web Shortcuts:
       </div>
       <div class="quick-links">
-        <a href="https://bizora-owner.onrender.com" target="_blank" class="quick-pill">👑 Owner</a>
-        <a href="https://bizora-customer.onrender.com" target="_blank" class="quick-pill">🛍️ Customer</a>
-        <a href="https://bizora-web.onrender.com" target="_blank" class="quick-pill">🌐 Marketing</a>
-        <a href="https://bizora-backend-gtoe.onrender.com" target="_blank" class="quick-pill">⚙️ Backend</a>
+        <a href="https://bizora-owner.onrender.com" target="_blank" class="quick-pill">👑 Owner Portal</a>
+        <a href="https://bizora-customer.onrender.com" target="_blank" class="quick-pill">🛍️ Customer CRM</a>
+        <a href="https://bizora-web.onrender.com" target="_blank" class="quick-pill">🌐 Marketing Platform</a>
       </div>
     </div>
 
@@ -654,8 +683,7 @@
     const SERVICES = [
       { id: 'owner', url: 'https://bizora-owner.onrender.com' },
       { id: 'customer', url: 'https://bizora-customer.onrender.com' },
-      { id: 'web', url: 'https://bizora-web.onrender.com' },
-      { id: 'api', url: 'https://bizora-backend-gtoe.onrender.com' },
+      { id: 'web', url: 'https://bizora-web.onrender.com' }
     ];
 
     function copyText(text, message) {
@@ -714,7 +742,7 @@
       await Promise.allSettled(promises);
       text.innerText = '⚡ All Services Pinged!';
       btn.style.opacity = '1';
-      showToast('Ping sent to all 4 Render instances!');
+      showToast('Ping sent to all 3 Render instances!');
       setTimeout(() => {
         text.innerText = '⚡ Wake Up & Ping All Portals';
       }, 4000);
