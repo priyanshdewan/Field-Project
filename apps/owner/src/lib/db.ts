@@ -1073,47 +1073,6 @@ class SeededDatabase {
     return this.schema.customers;
   }
 
-    if (typeof window !== "undefined") {
-      try {
-        const stored = window.localStorage.getItem("bizora_custom_suppliers");
-        const list: Supplier[] = stored ? JSON.parse(stored) : [];
-        if (!list.some((x) => x.id === s.id || (x.email && x.email === s.email))) {
-          list.unshift(s);
-          window.localStorage.setItem("bizora_custom_suppliers", JSON.stringify(list));
-        }
-      } catch (e) {}
-    }
-  }
-
-  public deleteSupplier(idOrEmailOrName: string) {
-    if (!idOrEmailOrName) return;
-    const target = idOrEmailOrName.toLowerCase().trim();
-    if (this.schema.suppliers) {
-      this.schema.suppliers = this.schema.suppliers.filter(
-        (x) =>
-          (!x.id || x.id.toLowerCase().trim() !== target) &&
-          (!x.email || x.email.toLowerCase().trim() !== target) &&
-          (!x.name || x.name.toLowerCase().trim() !== target)
-      );
-      this.save(this.schema);
-    }
-    if (typeof window !== "undefined") {
-      try {
-        const stored = window.localStorage.getItem("bizora_custom_suppliers");
-        if (stored) {
-          const list: Supplier[] = JSON.parse(stored);
-          const filtered = list.filter(
-            (x) =>
-              (!x.id || x.id.toLowerCase().trim() !== target) &&
-              (!x.email || x.email.toLowerCase().trim() !== target) &&
-              (!x.name || x.name.toLowerCase().trim() !== target)
-          );
-          window.localStorage.setItem("bizora_custom_suppliers", JSON.stringify(filtered));
-        }
-      } catch (e) {}
-    }
-  }
-
   public getExpenses(): Expense[] {
     return this.schema.expenses;
   }

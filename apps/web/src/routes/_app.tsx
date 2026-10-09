@@ -364,12 +364,11 @@ function AppShell() {
     }),
   })).filter((section) => section.items.length > 0);
 
-  
-          >
-            Stop Impersonation
-          </Button>
-        </div>
-      )}
+  const currentLabel =
+    filteredNAV.flatMap((s) => s.items).find((i) => i.to === pathname)?.label ?? "Overview";
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
       <div className="flex flex-1 min-h-0 bg-background text-foreground">
         {/* Mobile sidebar overlay */}
       {mobileOpen && (

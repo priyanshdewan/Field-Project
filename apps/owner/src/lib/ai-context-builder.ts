@@ -529,7 +529,6 @@ function executeLocalQueryFallbackRaw(
           sourceType: "expense",
           sourceId: "exp-mktg-promo-001",
         },
-        },
       ],
       reasoning: [
         "Analyzed Zone B hourly energy logs to isolate overnight HVAC grid draw spikes.",

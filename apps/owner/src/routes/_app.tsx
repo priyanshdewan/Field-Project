@@ -270,6 +270,13 @@ function AppShell() {
         .filter((c) => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q))
         .slice(0, 3),
       transactions: transactions
+        .filter(
+          (t) =>
+            t.id.toLowerCase().includes(q) ||
+            (t.customerName && t.customerName.toLowerCase().includes(q)) ||
+            t.total.toString().includes(q),
+        )
+        .slice(0, 3),
       expenses: expenses
         .filter(
           (e) =>
