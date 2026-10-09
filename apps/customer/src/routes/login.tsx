@@ -1,4 +1,5 @@
 import { BizoraLogo } from "@/components/bizora-logo";
+import { PortalSwitcher } from "@/components/portal-switcher";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Eye, EyeOff, ShoppingBag, Store, Zap, Truck, Loader2, ArrowLeft, UserCheck, Sparkles, Package } from "lucide-react";
@@ -73,7 +74,7 @@ function CustomerLoginPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      {/* Back button */}
+      {/* Top action bar */}
       <div className="absolute left-6 top-6 z-50">
         <Link
           to="/"
@@ -82,6 +83,9 @@ function CustomerLoginPage() {
           <ArrowLeft className="h-4 w-4" />
           Back to Home
         </Link>
+      </div>
+      <div className="absolute right-6 top-6 z-50">
+        <PortalSwitcher currentPortal="customer" />
       </div>
 
       {/* Backdrop */}

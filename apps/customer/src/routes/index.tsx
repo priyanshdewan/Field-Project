@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { PortalSwitcher } from "@/components/portal-switcher";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -58,10 +59,11 @@ function CustomerLandingPage() {
               <p className="text-[10px] text-muted-foreground">10-Min Delivery From Nearby Stores</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-4">
+            <PortalSwitcher currentPortal="customer" />
             <Link
               to="/login"
-              className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 transition-all shadow-md"
+              className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-emerald-500 transition-all shadow-md"
             >
               Sign In To Shop <ArrowRight className="h-4 w-4" />
             </Link>

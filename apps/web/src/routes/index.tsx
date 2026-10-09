@@ -29,10 +29,12 @@ import {
   Sun,
   Moon,
   X,
+  ExternalLink,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { BizoraLogo } from "@/components/bizora-logo";
 import { LanguageSelector } from "@/components/language-selector";
+import { PortalSwitcher } from "@/components/portal-switcher";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
@@ -200,6 +202,7 @@ function RichLandingPage() {
             <BizoraLogo variant="owner" size="md" />
 
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+              <PortalSwitcher currentPortal="web" />
               <LanguageSelector />
               <Button
                 variant="ghost"
@@ -272,6 +275,74 @@ function RichLandingPage() {
             >
               Storekeeper Sign In <ChevronRight className="h-4 w-4" />
             </Link>
+          </div>
+
+          {/* Live Portals Quick Access Banner */}
+          <div className="mt-8 rounded-2xl border border-hairline bg-surface/70 backdrop-blur-md p-4 sm:p-5 max-w-3xl mx-auto shadow-lg">
+            <div className="flex items-center justify-between gap-3 mb-3 pb-2.5 border-b border-hairline">
+              <div className="flex items-center gap-2 text-left">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs font-bold text-foreground">Live Deployed Web Portals</span>
+                <span className="text-[10px] text-muted-foreground hidden sm:inline">• Direct 1-Click Access</span>
+              </div>
+              <a
+                href="https://omkhade75.github.io/fieldproject/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-1"
+              >
+                Open Unified Hub <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+              <a
+                href="https://bizora-owner.onrender.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-all group"
+              >
+                <div className="h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center font-bold text-lg shrink-0">
+                  👑
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground group-hover:text-amber-500 transition-colors">
+                      Business Owner Portal
+                    </span>
+                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground group-hover:text-amber-500 shrink-0" />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    P&amp;L, POS Billing, Stock &amp; AI Insights
+                  </p>
+                </div>
+              </a>
+
+              <a
+                href="https://bizora-customer.onrender.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 transition-all group"
+              >
+                <div className="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 flex items-center justify-center font-bold text-lg shrink-0">
+                  🛍️
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground group-hover:text-emerald-500 transition-colors">
+                      Customer Express CRM
+                    </span>
+                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground group-hover:text-emerald-500 shrink-0" />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    10-Min Delivery, Digital WhatsApp Bills
+                  </p>
+                </div>
+              </a>
+            </div>
           </div>
 
           {/* Quick Trust Badges */}

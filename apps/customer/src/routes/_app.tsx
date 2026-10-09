@@ -1,5 +1,6 @@
 import { BizoraLogo, BizoraLogoIcon } from "@/components/bizora-logo";
 import { LanguageSelector } from "@/components/language-selector";
+import { PortalSwitcher } from "@/components/portal-switcher";
 import {
   createFileRoute,
   Link,
@@ -259,7 +260,9 @@ function AppShell() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <PortalSwitcher currentPortal="customer" />
+            <LanguageSelector />
             <Button
               onClick={handleLogout}
               variant="ghost"

@@ -1,5 +1,6 @@
 import { BizoraLogo, BizoraLogoIcon } from "@/components/bizora-logo";
 import { LanguageSelector } from "@/components/language-selector";
+import { PortalSwitcher } from "@/components/portal-switcher";
 import {
   createFileRoute,
   Outlet,
@@ -746,6 +747,7 @@ function AppShell() {
                 <CalendarDays className="h-4 w-4" />
               </Button>
               <LanguageSelector />
+              <PortalSwitcher currentPortal="owner" />
               {/* Theme toggle */}
               <Button
                 variant="ghost"

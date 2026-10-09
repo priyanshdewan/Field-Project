@@ -11,6 +11,7 @@
 
 <br />
 
+[**🚀 Unified Launchpad Hub**](https://omkhade75.github.io/fieldproject/) &nbsp;•&nbsp;
 [**👑 Owner Portal**](https://bizora-owner.onrender.com) &nbsp;•&nbsp;
 [**🛍️ Customer CRM**](https://bizora-customer.onrender.com) &nbsp;•&nbsp;
 [**🌐 Web Marketing**](https://bizora-web.onrender.com) &nbsp;•&nbsp;
@@ -24,12 +25,16 @@
 
 ---
 
-## 🌐 Live Deployed Portals Quick Reference
+## 🌐 Unified Launchpad & Live Deployed Portals
+
+You can access all deployed portals from a single unified launchpad link:
+👉 **[https://omkhade75.github.io/fieldproject/](https://omkhade75.github.io/fieldproject/)** (Single Master Directory)
 
 All static frontends communicate directly via REST API `fetch()` to the centralized NestJS backend hosted on Render:
 
 | Portal Role | Live Web URL | Key Capabilities & Features |
 | :--- | :--- | :--- |
+| **🚀 Master Directory Hub** | [https://omkhade75.github.io/fieldproject/](https://omkhade75.github.io/fieldproject/) | Central launchpad with 1-click access to all portals, demo credentials & wake-up status checks. |
 | **👑 Business Owner** | [https://bizora-owner.onrender.com](https://bizora-owner.onrender.com) | Executive P&L dashboard, double-entry GL ledger, barcode scanner product entry, inventory forecasting, daily sales & AI decisions. |
 | **🛍️ Customer Portal** | [https://bizora-customer.onrender.com](https://bizora-customer.onrender.com) | Customer CRM portal, digital POS receipt history, loyalty rewards wallet, order tracking, product reviews. |
 | **🌐 Marketing Portal** | [https://bizora-web.onrender.com](https://bizora-web.onrender.com) | Main landing page, platform overview, enterprise pricing, module feature tours, store onboarding. |
