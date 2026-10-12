@@ -126,8 +126,10 @@ function RouteComponent() {
     }
   };
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (isInitial = false) => {
+    if (isInitial || products.length === 0) {
+      setLoading(true);
+    }
     try {
       const payload = {
         data: {
@@ -186,10 +188,10 @@ function RouteComponent() {
       setDepartments(safeDepts);
 
       if (safeDepts.length > 0) {
-        setFormDepartmentId(safeDepts[0].id);
+        setFormDepartmentId((prev) => prev || safeDepts[0].id);
       }
       if (mergedProds.length > 0) {
-        setSelectedItemSku(mergedProds[0].id);
+        setSelectedItemSku((prev) => prev || mergedProds[0].id);
       }
     } catch (e) {
       console.warn("Billing page data load fallback triggered:", e);
@@ -218,15 +220,25 @@ function RouteComponent() {
       setProducts(localProds);
       setCustomers(localCusts);
       setDepartments([]);
-      if (localProds.length > 0) setSelectedItemSku(localProds[0].id);
+      if (localProds.length > 0) {
+        setSelectedItemSku((prev) => prev || localProds[0].id);
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  // Initial load on mount or user change
   useEffect(() => {
-    loadData();
-  }, [user, dataVersion]);
+    loadData(true);
+  }, [user]);
+
+  // Silent background refresh on dataVersion change without showing loader or resetting form
+  useEffect(() => {
+    if (products.length > 0) {
+      loadData(false);
+    }
+  }, [dataVersion]);
 
   // Auto-detect department based on cart items
   useEffect(() => {

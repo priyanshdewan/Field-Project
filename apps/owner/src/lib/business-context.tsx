@@ -333,7 +333,8 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     if (user && !isOffline) {
       syncData();
-      intervalId = setInterval(syncData, 8000);
+      // Poll every 60 seconds for background sync (prevents aggressive network hammering and UI thrashing)
+      intervalId = setInterval(syncData, 60000);
     }
 
     return () => {
